@@ -21,7 +21,15 @@ All functions are accessed using the `AllFunctions.` namespace.
 
 Use the following MATLAB script to automatically download the latest versions of the functions into your project:
 
+
+
 ```matlab
+
+% Root directory = folder of this script (robust)
+rootDir = fileparts(mfilename("fullpath"));
+addpath(rootDir);   % your helper MATLAB functions are here
+
+
 % Packages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pkgDir  = fullfile(rootDir, "+AllFunctions");
