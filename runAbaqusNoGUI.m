@@ -95,6 +95,15 @@ else
 end
 
 % ---------- run ----------
+% --- sanitize paths: remove any accidental surrounding quotes ---
+stripq = @(p) regexprep(char(p), '^"+|"+$', '');  % remove leading/trailing "
+
+runDir          = stripq(runDir);
+opt.AbaqusBat    = stripq(opt.AbaqusBat);
+opt.IntelSetvars = stripq(opt.IntelSetvars);
+pyScriptAbs      = stripq(pyScriptAbs);
+logFile          = stripq(logFile);
+
 status = system(cmd);
 
 if status ~= 0
@@ -102,3 +111,4 @@ if status ~= 0
 end
 
 end
+
