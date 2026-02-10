@@ -1,13 +1,4 @@
-% runDir  = "C:\myproj\AbaqusSimulation";
-% pyOut   = fullfile(runDir, "main_updated.py");   % already created by your update function
-
-% [status, logFile] = runAbaqusNoGUI(pyOut, runDir, ...
-    % 'AbaqusBat', "C:\SIMULIA\Commands\abaqus.bat", ...
-    % 'IntelSetvars', "C:\Program Files (x86)\Intel\oneAPI\setvars.bat", ...
-    % 'DoIntel', true);
-
-
-function [status, logFile] = runAbaqusNoGUI(pyScript, runDir, varargin)
+function [status, logFile, cmd] = runAbaqusNoGUI(pyScript, runDir, varargin)
 % runAbaqusNoGUI  Run Abaqus/CAE in noGUI mode for an *existing* Python script.
 %
 % Usage:
@@ -19,15 +10,18 @@ function [status, logFile] = runAbaqusNoGUI(pyScript, runDir, varargin)
 %   runDir   : working directory to run Abaqus in (existing or will be created)
 %
 % Name-Value options:
-%   'AbaqusBat'    : path to abaqus.bat (default: "C:\SIMULIA\Commands\abaqus.bat")
-%   'IntelSetvars' : path to Intel oneAPI setvars.bat (default: "C:\Program Files (x86)\Intel\oneAPI\setvars.bat")
+%   'AbaqusBat'    : path to abaqus.bat
+%   'IntelSetvars' : path to Intel oneAPI setvars.bat
 %   'LogFile'      : log file path (default: fullfile(runDir,'log.txt'))
 %   'DoIntel'      : true/false, call Intel setvars before Abaqus (default: true)
+%   'IntelArch'    : e.g. "intel64" (default: "intel64")
 %   'CheckWhere'   : true/false, run "where abaqus" first (default: false)
+%   'PrintCmd'     : true/false, display command (default: true)
 %
 % Outputs:
 %   status  : exit code returned by system(cmd) (0 means OK)
 %   logFile : path to log file (stdout+stderr captured)
+%   cmd     : the command that was executed (useful for debugging)
 
 % ---------- validate ----------
 assert(ischar(pyScript) || isstring(pyScript), 'pyScript must be char/string.');
@@ -47,7 +41,9 @@ opt.AbaqusBat    = "C:\SIMULIA\Commands\abaqus.bat";
 opt.IntelSetvars = "C:\Program Files (x86)\Intel\oneAPI\setvars.bat";
 opt.LogFile      = "";
 opt.DoIntel      = true;
+opt.IntelArch    = "intel64";
 opt.CheckWhere   = false;
+opt.PrintCmd     = true;
 
 % ---------- parse name-value ----------
 if mod(numel(varargin),2) ~= 0
@@ -62,48 +58,59 @@ for i = 1:2:numel(varargin)
     opt.(name) = val;
 end
 
-if strlength(opt.LogFile) == 0
+% ---------- helpers ----------
+stripq = @(p) regexprep(char(p), '^"+|"+$', '');  % remove leading/trailing "
+q      = @(p) ['"' stripq(p) '"'];                % add exactly one pair of quotes
+
+% ---------- sanitize inputs BEFORE building cmd ----------
+runDir          = stripq(runDir);
+opt.AbaqusBat    = stripq(opt.AbaqusBat);
+opt.IntelSetvars = stripq(opt.IntelSetvars);
+
+% ---------- log file ----------
+if (isstring(opt.LogFile) && strlength(opt.LogFile)==0) || (ischar(opt.LogFile) && isempty(opt.LogFile))
     logFile = fullfile(runDir, 'log.txt');
 else
-    logFile = char(opt.LogFile);
+    logFile = stripq(opt.LogFile);
 end
 
-% Use absolute path for the script in the command (safer)
+% ---------- absolute path to python script ----------
 pyScriptAbs = pyScript;
 try
     pyScriptAbs = char(java.io.File(pyScript).getCanonicalPath());
 catch
-    % if java not available for some reason, keep original
+    % keep as-is if Java not available
 end
+pyScriptAbs = stripq(pyScriptAbs);
 
-status = 0;
-
+% ---------- optional check ----------
 if opt.CheckWhere
     system('where abaqus');
 end
 
-% ---------- build command ----------
+% ---------- build command (robust quoting) ----------
 if opt.DoIntel
-    % IMPORTANT: escape quotes for Windows cmd properly using "" inside "...".
-    cmd = sprintf( ...
-        'cmd /c "cd /d ""%s"" && call ""%s"" intel64 && ""%s"" cae noGUI=""%s"" > ""%s"" 2>&1"', ...
-        runDir, opt.IntelSetvars, opt.AbaqusBat, pyScriptAbs, logFile);
+    cmdInner = [ ...
+        'cd /d ' q(runDir) ...
+        ' && call ' q(opt.IntelSetvars) ' ' char(opt.IntelArch) ...
+        ' && ' q(opt.AbaqusBat) ' cae noGUI=' q(pyScriptAbs) ...
+        ' > ' q(logFile) ' 2>&1' ...
+    ];
 else
-    cmd = sprintf( ...
-        'cmd /c "cd /d ""%s"" && ""%s"" cae noGUI=""%s"" > ""%s"" 2>&1"', ...
-        runDir, opt.AbaqusBat, pyScriptAbs, logFile);
+    cmdInner = [ ...
+        'cd /d ' q(runDir) ...
+        ' && ' q(opt.AbaqusBat) ' cae noGUI=' q(pyScriptAbs) ...
+        ' > ' q(logFile) ' 2>&1' ...
+    ];
+end
+
+cmd = ['cmd /c "' cmdInner '"'];
+
+if opt.PrintCmd
+    disp("CMD = " + string(cmd));
 end
 
 % ---------- run ----------
-% --- sanitize paths: remove any accidental surrounding quotes ---
-stripq = @(p) regexprep(char(p), '^"+|"+$', '');  % remove leading/trailing "
-
-runDir          = stripq(runDir);
-opt.AbaqusBat    = stripq(opt.AbaqusBat);
-opt.IntelSetvars = stripq(opt.IntelSetvars);
-pyScriptAbs      = stripq(pyScriptAbs);
-logFile          = stripq(logFile);
-
 status = system(cmd);
 
 if status ~= 0
@@ -111,4 +118,3 @@ if status ~= 0
 end
 
 end
-
