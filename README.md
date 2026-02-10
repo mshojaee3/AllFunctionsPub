@@ -1,6 +1,28 @@
 # AllFunctionsPub
 
-%Packages
+**AllFunctionsPub** is a public MATLAB utility package that collects commonly used helper functions for simulation workflows, with a focus on **Abaqus automation**, **data generation**, and **safe directory management**.
+
+The repository is designed to be easily pulled into other projects and used as a MATLAB package (`+AllFunctions`) without manual copying.
+
+---
+
+## 📦 Package Structure
+
+After installation, the package will appear as:
+
+
+
+
+All functions are accessed using the `AllFunctions.` namespace.
+
+---
+
+## 🚀 Installation (Recommended)
+
+Use the following MATLAB script to automatically download the latest versions of the functions into your project:
+
+```matlab
+% Packages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pkgDir  = fullfile(rootDir, "+AllFunctions");
 if ~exist(pkgDir,"dir"); mkdir(pkgDir); end
