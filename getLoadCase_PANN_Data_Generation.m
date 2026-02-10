@@ -1,4 +1,4 @@
-function [caseName, params] = getLoadCase(caseNumber)
+function [caseName, params] = getLoadCase_PANN_Data_Generation(caseNumber)
 %GETLOADCASE  Load case from a row in an 8D txt dataset.
 % Column order in txtFile:
 %   [H11  H22  H12  K11  K22  K12  H31  H32]
@@ -90,3 +90,4 @@ params.H32_in = y(8);
 % ---- numeric case name/tag ----
 caseName = sprintf("RS2_Elem6PerLayer_Case_256_%05d", caseNumber);
 end
+
