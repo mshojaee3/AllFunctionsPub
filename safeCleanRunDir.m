@@ -1,4 +1,4 @@
-
+%
 %% ==========================================================
 % Local function: safe cleaning (never crashes if files are locked)
 % ==========================================================
@@ -38,4 +38,5 @@ function safeCleanRunDir(runDir)
             warning("Cleanup failed for: %s\n%s", fp, ME.message);
         end
     end
+
 end
