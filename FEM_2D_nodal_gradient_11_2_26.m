@@ -1,5 +1,5 @@
 function [gradX, gradY] = FEM_2D_nodal_gradient_11_2_26(X, Y, Field, Connectivity, Node_Labels)
-% FEM_2D_NODAL_GRADIENT_11_2_26: Mixed-mesh compatible gradient calculation.
+% upupFEM_2D_NODAL_GRADIENT_11_2_26: Mixed-mesh compatible gradient calculation.
 %
 % INPUTS:
 %  X            : [N x 1] Vector of Nodal X-coordinates
@@ -132,3 +132,4 @@ function [dN_dxi, dN_deta] = sd_Q8(xi, eta)
         (1-xi)*(2*eta+xi), (1+xi)*(2*eta-xi), (1+xi)*(2*eta+xi), (1-xi)*(2*eta-xi), ...
         -2*(1-xi^2), -4*eta*(1+xi), 2*(1-xi^2), -4*eta*(1-xi) ];
 end
+
