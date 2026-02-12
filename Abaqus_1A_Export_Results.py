@@ -34,12 +34,7 @@
 #exp.export(connectivity=True, nodal=True, gauss=True,
 #           export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True,
 #           frames='last')  # 'all'
-# ============================================================
-# Export_Abaqus2CSV : Robust ODB -> 3 CSV files (2D/3D, Py2/Py3)
-#   1) <prefix>_Connectivity.csv
-#   2) <prefix>_NodalData.csv
-#   3) <prefix>_GaussData.csv
-# ============================================================
+
 
 from abaqusConstants import *
 import csv
