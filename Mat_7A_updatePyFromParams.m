@@ -10,8 +10,8 @@
 %     mkdir(runDir);
 % end
 % srcPy = fullfile(rootDir, "main.py");
-% AllFunctions.updatePyFromParams(params, srcPy, fullfile(runDir,"main_updated.py"));
-function outPy = updatePyFromParams(params, pyFile, outPy)
+% AllFunctions.Mat_7A_updatePyFromParams(params, srcPy, fullfile(runDir,"main_updated.py"))
+function outPy = Mat_7A_updatePyFromParams(params, pyFile, outPy)
 
 % ----------------- validate -----------------
 assert(isstruct(params), 'params must be a struct.');
@@ -118,3 +118,4 @@ end
 function out = tern(cond, a, b)
 if cond, out = a; else, out = b; end
 end
+
