@@ -1,4 +1,4 @@
-function Tsummary = ShellResultantStress_Vol_Integral_RVE_10_2_26(csvFile, params, varargin)
+function Tsummary = Mat_1A_ResultantStress_Integral_RVE(csvFile, params, varargin)
 % rveCsvToShellResultantStress_volume
 % Build the same 3x8 summary table as your surface-based version, but using
 % VOLUME averages (and volume-based slopes / moments) over the RVE.
@@ -367,6 +367,7 @@ for ee = 1:ne
     Xe(ee,:) = mean(V(conn(ee,:),:), 1);
 end
 end
+
 
 
 
