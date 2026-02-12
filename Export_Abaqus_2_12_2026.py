@@ -197,7 +197,7 @@ class Export_Abaqus2CSV(object):
             if export_X:
                 header += self._vec_labels('X', self.coord_dim)
             if export_U:
-                header += (['U1','U2','U3'] if self.coord_dim == 3 else ['U1','U2'])
+                header += (['U_U1','U_U2','U_U3'] if self.coord_dim == 3 else ['U_U1','U_U2'])
             w.writerow(header)
 
             for nd in self.inst.nodes:
