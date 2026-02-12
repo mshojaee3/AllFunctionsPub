@@ -30,10 +30,10 @@
 
 #Download_py_lib_from_github("Export_Abaqus_12_2_26.py")
 #from Export_Abaqus_12_2_26 import Export_Abaqus2CSV
-#exp = Export_Abaqus2CSV(JOB + '.odb', out_prefix=JOB, step_name=STEP, frame_index=-1)
+#exp = Export_Abaqus2CSV(JOB + '.odb', out_prefix=JOB, step_name=STEP)
 #exp.export(connectivity=True, nodal=True, gauss=True,
 #           export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True,
-#           nodal_tensor_position='NODAL')
+#           frames='all')  # 'last'
 # ============================================================
 # Export_Abaqus2CSV : Robust ODB -> 3 CSV files (2D/3D, Py2/Py3)
 #   1) <prefix>_Connectivity.csv
