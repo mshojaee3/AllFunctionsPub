@@ -151,7 +151,17 @@ class Export_Abaqus2CSV(object):
     def export_connectivity(self, filename=None):
         if filename is None:
             filename = self.out_prefix + '_Connectivity.csv'
-
+    
+        # numeric TypeID mapping (same as your old script)
+        type_map = {
+            'CPS3': 3, 'CPE3': 3,
+            'CPS6': 6, 'CPE6': 6,
+            'CPS4': 4, 'CPE4': 4,
+            'CPS8': 8, 'CPE8': 8,
+            # add more if you use them:
+            'C3D4': 4, 'C3D10': 10, 'C3D8': 8, 'C3D20': 20
+        }
+    
         # find max connectivity length for padding
         max_conn = 0
         for el in self.inst.elements:
@@ -161,17 +171,18 @@ class Export_Abaqus2CSV(object):
                 pass
         if max_conn < 1:
             max_conn = 8
-
+    
         with self.open_csv_safe(filename) as f:
             w = csv.writer(f)
-            header = ['Element', 'ElemType'] + ['N%d' % (i+1) for i in range(max_conn)]
+            header = ['Element', 'TypeID'] + ['N%d' % (i+1) for i in range(max_conn)]
             w.writerow(header)
-
+    
             for el in self.inst.elements:
+                t_id = type_map.get(el.type, 0)
                 conn = list(el.connectivity)
                 padded = conn + [float('nan')] * (max_conn - len(conn))
-                w.writerow([el.label, el.type] + padded)
-
+                w.writerow([el.label, t_id] + padded)
+    
         print(' -> Connectivity:', filename)
 
 
