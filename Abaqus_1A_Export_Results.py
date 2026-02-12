@@ -596,6 +596,7 @@ class Export_Abaqus2CSV(object):
             # Connectivity once
             if connectivity:
                 self.export_connectivity()
+            
             if ALLSE:
                 self.export_ALLSE(filename=self.out_prefix + '_ALLSE.csv')
             
