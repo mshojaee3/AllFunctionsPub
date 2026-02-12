@@ -1,7 +1,7 @@
 # ------------------------- 
 # Example call 
 # -------------------------
-#Download_py_lib_from_github("pbc2d_version1.py")
+#Py_1A_download_lib_from_github("pbc2d_version1.py")
 #
 #
 RAW_BASE = "https://raw.githubusercontent.com/mshojaee3/AllFunctionsPub/main/"
