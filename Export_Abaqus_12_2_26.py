@@ -579,7 +579,7 @@ class Export_Abaqus2CSV(object):
 
                 # Filename suffix
                 suf = ''
-                if suffix_with_step_frame:
+                if suffix_with_step_frame and (len(frame_indices) > 1):
                     suf = '_%s_f%04d' % (self.step_name, fi)
 
                 if nodal:
