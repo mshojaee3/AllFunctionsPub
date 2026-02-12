@@ -1,9 +1,9 @@
-function [status, logFile, cmd] = runAbaqusNoGUI(pyScript, runDir, varargin)
+function [status, logFile, cmd] = Mat_6A_runAbaqusNoGUI(pyScript, runDir, varargin)
 % runAbaqusNoGUI  Run Abaqus/CAE in noGUI mode for an *existing* Python script.
 %
 % Usage:
-%   [status, logFile] = runAbaqusNoGUI(pyScript, runDir)
-%   [status, logFile] = runAbaqusNoGUI(pyScript, runDir, 'Name',Value,...)
+%   [status, logFile] = Mat_6A_runAbaqusNoGUI(pyScript, runDir)
+%   [status, logFile] = Mat_6A_runAbaqusNoGUI(pyScript, runDir, 'Name',Value,...)
 %
 % Inputs:
 %   pyScript : path to the Python script to run with Abaqus (existing file)
@@ -118,3 +118,4 @@ if status ~= 0
 end
 
 end
+
