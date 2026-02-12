@@ -137,15 +137,50 @@ class Export_Abaqus2CSV(object):
             self.close_odb_on_done = True
     
         # Instance selection
+        # Instance selection (ROBUST)
         inst_names = list(self.odb.rootAssembly.instances.keys())
-    
-        if self.instance_key is None:
-            prefer = []
+        inst_objs  = self.odb.rootAssembly.instances
+        
+        # If user explicitly set instance_key, use it
+        if self.instance_key is not None:
+            if self.instance_key not in inst_objs:
+                raise RuntimeError("instance_key '%s' not found. Available: %s"
+                                   % (self.instance_key, inst_names))
+            self.inst = inst_objs[self.instance_key]
+        else:
+            # Optional: filter by substring first (like your old BRICK logic)
+            candidates = inst_names
             if self.prefer_instance_contains:
-                prefer = [k for k in inst_names if self.prefer_instance_contains.upper() in k.upper()]
-            self.instance_key = prefer[0] if len(prefer) else inst_names[0]
+                s = self.prefer_instance_contains.upper()
+                filtered = [k for k in inst_names if s in k.upper()]
+                if filtered:
+                    candidates = filtered
+        
+            # Pick instance with max elements, tie-break by nodes
+            best = None
+            best_key = None
+            for k in candidates:
+                inst = inst_objs[k]
+                try:
+                    ne = len(inst.elements)
+                except:
+                    ne = 0
+                try:
+                    nn = len(inst.nodes)
+                except:
+                    nn = 0
+                score = (ne, nn)
+                if (best is None) or (score > best):
+                    best = score
+                    best_key = k
+        
+            if best_key is None:
+                raise RuntimeError("No instances found in ODB.")
+            self.instance_key = best_key
+            self.inst = inst_objs[best_key]
+        
+        print("Using instance:", self.inst.name, "nodes:", len(self.inst.nodes), "elements:", len(self.inst.elements))
     
-        self.inst = self.odb.rootAssembly.instances[self.instance_key]
     
         # Step + frame selection
         step_keys = list(self.odb.steps.keys())
