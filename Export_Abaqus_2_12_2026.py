@@ -174,9 +174,7 @@ class Export_Abaqus2CSV(object):
 
         print(' -> Connectivity:', filename)
 
-    # -------------------------
-    # Export: Nodal Data (X + U)
-    # -------------------------
+
     # -------------------------
     # Export: Nodal Data (X + U)
     # -------------------------
