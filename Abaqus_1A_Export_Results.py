@@ -33,6 +33,7 @@
 #exp = Export_Abaqus2CSV(JOB + '.odb', out_prefix=JOB, step_name=STEP)
 #exp.export(connectivity=True, nodal=True, gauss=True,
 #           export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True,
+#           ALLSE=True,
 #           frames='last')  # 'all'
 
 
