@@ -20,7 +20,7 @@ function Tsummary = ShellResultantStress_Based_Volume_Integratin_of_RVE_10_2_26(
 %
 % Notes:
 %   - Uses reference configuration volumes and reference z-centroids.
-%   - Requires nodal CSV with X,Y,Z and U_U1,U_U2,U_U3; stresses S_S** for P.
+%   - Requires nodal CSV with X,Y,Z and U_U1,U_U2,U_U3; stresses S** for P.
 %
 % Options:
 %   'tol'               (default 1e-8)
@@ -191,10 +191,10 @@ out.F31 = F(:,7); out.F32 = F(:,8); out.F33 = F(:,9);
 out.detF = detF;
 
 % -------------------- 8) Compute P (1st PK) from Cauchy stress --------------------
-needS = all(ismember({'S_S11','S_S22','S_S33','S_S12','S_S13','S_S23'}, T.Properties.VariableNames));
+needS = all(ismember({'S11','S22','S33','S12','S13','S23'}, T.Properties.VariableNames));
 if needS
-    s11n = T.S_S11(:); s22n = T.S_S22(:); s33n = T.S_S33(:);
-    s12n = T.S_S12(:); s13n = T.S_S13(:); s23n = T.S_S23(:);
+    s11n = T.S11(:); s22n = T.S22(:); s33n = T.S33(:);
+    s12n = T.S12(:); s13n = T.S13(:); s23n = T.S23(:);
 
     s11e = mean(s11n(conn),2); s22e = mean(s22n(conn),2); s33e = mean(s33n(conn),2);
     s12e = mean(s12n(conn),2); s13e = mean(s13n(conn),2); s23e = mean(s23n(conn),2);
@@ -228,7 +228,7 @@ if needS
     out.P21 = P21; out.P22 = P22; out.P23 = P23;
     out.P31 = P31; out.P32 = P32; out.P33 = P33;
 else
-    warning('Stress columns S_S** not found -> output P** will be NaN.');
+    warning('Stress columns S** not found -> output P** will be NaN.');
     out.P11 = nan(ne,1); out.P12 = nan(ne,1); out.P13 = nan(ne,1);
     out.P21 = nan(ne,1); out.P22 = nan(ne,1); out.P23 = nan(ne,1);
     out.P31 = nan(ne,1); out.P32 = nan(ne,1); out.P33 = nan(ne,1);
@@ -367,5 +367,6 @@ for ee = 1:ne
     Xe(ee,:) = mean(V(conn(ee,:),:), 1);
 end
 end
+
 
 
