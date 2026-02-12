@@ -90,33 +90,45 @@ class Export_Abaqus2CSV(object):
             self.odb = self.odb_or_path
             self.close_odb_on_done = False
         else:
-            self.odb = session.openOdb(self.odb_or_path)
+            # Try session.openOdb first (CAE), then odbAccess.openOdb (noGUI safe)
+            odb_obj = None
+            try:
+                from abaqus import session  # works in CAE/noGUI if abaqus module provides session
+                odb_obj = session.openOdb(self.odb_or_path)
+            except:
+                try:
+                    from odbAccess import openOdb
+                    odb_obj = openOdb(path=self.odb_or_path, readOnly=False)
+                except Exception as e:
+                    raise RuntimeError("Could not open ODB: %s  (%s)" % (self.odb_or_path, str(e)))
+    
+            self.odb = odb_obj
             self.close_odb_on_done = True
-
+    
         # Instance selection
         inst_names = list(self.odb.rootAssembly.instances.keys())
-
+    
         if self.instance_key is None:
             prefer = []
             if self.prefer_instance_contains:
                 prefer = [k for k in inst_names if self.prefer_instance_contains.upper() in k.upper()]
             self.instance_key = prefer[0] if len(prefer) else inst_names[0]
-
+    
         self.inst = self.odb.rootAssembly.instances[self.instance_key]
-
+    
         # Step + frame selection
         step_keys = list(self.odb.steps.keys())
         if self.step_name is None:
             self.step_name = step_keys[-1]
         step = self.odb.steps[self.step_name]
         self.frame = step.frames[self.frame_index]
-
+    
         # Coord dimension
         try:
             self.coord_dim = len(self.inst.nodes[0].coordinates)
         except:
             self.coord_dim = 3
-
+    
         print('--- Export_Abaqus2CSV OPEN ---')
         print(' ODB:', self.odb.name)
         print(' Instance:', self.instance_key)
