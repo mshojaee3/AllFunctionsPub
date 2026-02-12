@@ -7,17 +7,11 @@
 #exp.export(connectivity=True, nodal=True, gauss=True,
 #           export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True,
 #           nodal_tensor_position='NODAL')
-#
 # ============================================================
 # Export_Abaqus2CSV : Robust ODB -> 3 CSV files (2D/3D, Py2/Py3)
 #   1) <prefix>_Connectivity.csv
 #   2) <prefix>_NodalData.csv
 #   3) <prefix>_GaussData.csv
-#
-# Usage (inside Abaqus/CAE noGUI script):
-#   exp = Export_Abaqus2CSV(JOB + '.odb', out_prefix=JOB, step_name=STEP)
-#   exp.export(connectivity=True, nodal=True, gauss=True,
-#              export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True)
 # ============================================================
 
 from abaqusConstants import *
