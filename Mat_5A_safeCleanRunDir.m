@@ -1,11 +1,11 @@
 % ------------------------- 
 %Example call 
 %-------------------------
-% AllFunctions.safeCleanRunDir(simDir)
+% AllFunctions.Mat_5A_safeCleanRunDir(simDir)
 %% ==========================================================
 % Local function: safe cleaning (never crashes if files are locked)
 % ==========================================================
-function safeCleanRunDir(runDir)
+function Mat_5A_safeCleanRunDir(runDir)
 
     if ~exist(runDir,'dir')
         mkdir(runDir);
@@ -43,4 +43,5 @@ function safeCleanRunDir(runDir)
     end
 
 end
+
 
