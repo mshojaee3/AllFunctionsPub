@@ -177,10 +177,27 @@ class Export_Abaqus2CSV(object):
     # -------------------------
     # Export: Nodal Data (X + U)
     # -------------------------
-    def export_nodal(self, filename=None, export_X=True, export_U=True):
+    # -------------------------
+    # Export: Nodal Data (X + U)
+    # -------------------------
+    def export_nodal(self, filename=None, export_X=True, export_U=True,
+                     export_E=False, export_LE=False, export_S=False,
+                     nodal_tensor_position='NODAL'):
+        """
+        Writes one row per node.
+        Exports:
+          - X coords
+          - U at NODAL
+          - optional E/LE/S at NODAL if available,
+            else uses ELEMENT_NODAL and averages across contributing elements.
+        """
+    
         if filename is None:
             filename = self.out_prefix + '_NodalData.csv'
-
+    
+        # -------------------------
+        # Displacement (U) at nodes
+        # -------------------------
         u_dict = {}
         if export_U:
             fo_u = self._subset_safe(self._safe_get_field(self.frame, 'U'),
@@ -190,23 +207,103 @@ class Export_Abaqus2CSV(object):
             if fo_u is not None:
                 for v in fo_u.values:
                     u_dict[v.nodeLabel] = v.data
-
+    
+        # -------------------------
+        # Helper to get nodal tensor (E/LE/S)
+        # -------------------------
+        def get_nodal_tensor(fname):
+            """
+            Returns (tensor_dict, ncomp) where tensor_dict[nodeLabel] = tuple comps
+            If NODAL not available, averages ELEMENT_NODAL.
+            """
+            field = self._safe_get_field(self.frame, fname)
+            if field is None:
+                return {}, 0
+    
+            # Try requested position first (usually NODAL)
+            pos = NODAL if str(nodal_tensor_position).upper() == 'NODAL' else ELEMENT_NODAL
+            fo = self._subset_safe(field, region=self.inst, position=pos)
+    
+            # If not available, fallback to ELEMENT_NODAL
+            used_element_nodal = False
+            if fo is None or len(fo.values) == 0:
+                fo = self._subset_safe(field, region=self.inst, position=ELEMENT_NODAL)
+                used_element_nodal = True
+    
+            if fo is None or len(fo.values) == 0:
+                return {}, 0
+    
+            # Determine number of components
+            ncomp = len(fo.values[0].data)
+    
+            if not used_element_nodal:
+                # one value per node (usually)
+                d = {}
+                for v in fo.values:
+                    d[v.nodeLabel] = v.data
+                return d, ncomp
+    
+            # ELEMENT_NODAL: multiple values per node -> average
+            acc = {}
+            cnt = {}
+            for v in fo.values:
+                nl = v.nodeLabel
+                dat = v.data
+                if nl not in acc:
+                    acc[nl] = [0.0] * ncomp
+                    cnt[nl] = 0
+                for i in range(ncomp):
+                    acc[nl][i] += dat[i]
+                cnt[nl] += 1
+    
+            d = {}
+            for nl in acc:
+                c = float(cnt[nl]) if cnt[nl] else 1.0
+                d[nl] = tuple([acc[nl][i] / c for i in range(ncomp)])
+            return d, ncomp
+    
+        # -------------------------
+        # Collect requested tensors
+        # -------------------------
+        tensors = []  # list of (fieldName, prefix, dict, ncomp)
+        if export_E:
+            d, n = get_nodal_tensor('E')
+            if n > 0: tensors.append(('E', 'E', d, n))
+        if export_LE:
+            d, n = get_nodal_tensor('LE')
+            if n > 0: tensors.append(('LE', 'LE', d, n))
+        if export_S:
+            d, n = get_nodal_tensor('S')
+            if n > 0: tensors.append(('S', 'S', d, n))
+    
+        # -------------------------
+        # Write CSV
+        # -------------------------
         with self.open_csv_safe(filename) as f:
             w = csv.writer(f)
+    
             header = ['Node_Label']
             if export_X:
                 header += self._vec_labels('X', self.coord_dim)
             if export_U:
                 header += (['U_U1','U_U2','U_U3'] if self.coord_dim == 3 else ['U_U1','U_U2'])
+    
+            # tensor headers
+            for (_, pref, _, ncomp) in tensors:
+                header += self._tensor_comp_labels(pref, ncomp)
+    
             w.writerow(header)
-
+    
             for nd in self.inst.nodes:
-                row = [nd.label]
-                c = nd.coordinates
+                lab = nd.label
+                row = [lab]
+    
                 if export_X:
+                    c = nd.coordinates
                     row += [c[i] if i < len(c) else float('nan') for i in range(self.coord_dim)]
+    
                 if export_U:
-                    u = u_dict.get(nd.label, None)
+                    u = u_dict.get(lab, None)
                     if u is None:
                         row += ([float('nan'), float('nan'), float('nan')] if self.coord_dim == 3
                                 else [float('nan'), float('nan')])
@@ -215,9 +312,20 @@ class Export_Abaqus2CSV(object):
                             row += [u[0], u[1], u[2] if len(u) > 2 else 0.0]
                         else:
                             row += [u[0], u[1]]
+    
+                # tensors
+                for (_, _, dct, ncomp) in tensors:
+                    val = dct.get(lab, None)
+                    if val is None:
+                        row += [float('nan')] * ncomp
+                    else:
+                        row += [val[i] for i in range(ncomp)]
+    
                 w.writerow(row)
-
+    
         print(' -> NodalData:', filename)
+
+
 
     # -------------------------
     # Export: Gauss Data (E, LE, S + optional coords)
