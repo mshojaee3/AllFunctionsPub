@@ -515,9 +515,7 @@ class Export_Abaqus2CSV(object):
 
         print(' -> GaussData:', filename)
     
-    # -------------------------
-    # High-level export
-    # -------------------------
+
     def export_ALLSE(self, filename=None):
         """
         Export ALLSE (strain energy) history output to CSV.
@@ -547,6 +545,9 @@ class Export_Abaqus2CSV(object):
         else:
             print(" -> ALLSE:", filename, "(%d rows)" % len(rows))
     
+    # -------------------------
+    # High-level export
+    # -------------------------
     
     def _get_step_and_frame_indices(self, frames='last'):
         """
@@ -593,7 +594,9 @@ class Export_Abaqus2CSV(object):
             # Connectivity once
             if connectivity:
                 self.export_connectivity()
-
+            if ALLSE:
+                self.export_allse(filename=self.out_prefix + '_ALLSE.csv')
+            
             # Decide which frames to export
             step, frame_indices = self._get_step_and_frame_indices(frames=frames)
 
