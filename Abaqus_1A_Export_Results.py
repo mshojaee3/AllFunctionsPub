@@ -597,7 +597,7 @@ class Export_Abaqus2CSV(object):
             if connectivity:
                 self.export_connectivity()
             if ALLSE:
-                self.export_allse(filename=self.out_prefix + '_ALLSE.csv')
+                self.export_ALLSE(filename=self.out_prefix + '_ALLSE.csv')
             
             # Decide which frames to export
             step, frame_indices = self._get_step_and_frame_indices(frames=frames)
