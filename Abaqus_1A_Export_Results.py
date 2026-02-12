@@ -518,6 +518,35 @@ class Export_Abaqus2CSV(object):
     # -------------------------
     # High-level export
     # -------------------------
+    def export_ALLSE(self, filename=None):
+        """
+        Export ALLSE (strain energy) history output to CSV.
+        Writes: Time, ALLSE, HistoryRegion
+        """
+        if filename is None:
+            filename = self.out_prefix + '_ALLSE.csv'
+        step = self.odb.steps[self.step_name]
+        rows = []
+        for hr_name, hr in step.historyRegions.items():
+            try:
+                ho = hr.historyOutputs
+            except:
+                continue
+            if 'ALLSE' not in ho:
+                continue
+            data = ho['ALLSE'].data  # [(time, value), ...]
+            for (t, val) in data:
+                rows.append((t, val, hr_name))
+        with self.open_csv_safe(filename) as f:
+            w = csv.writer(f)
+            w.writerow(['Time', 'ALLSE', 'HistoryRegion'])
+            for r in rows:
+                w.writerow(r)
+        if len(rows) == 0:
+            print(" -> ALLSE not found for step '%s' (header written only)" % self.step_name)
+        else:
+            print(" -> ALLSE:", filename, "(%d rows)" % len(rows))
+    
     
     def _get_step_and_frame_indices(self, frames='last'):
         """
