@@ -1,7 +1,9 @@
 function GP_Data = FEM_2D_GP_gradient_12_2_26(X, Y, Field, Connectivity, Node_Labels)
 % FEM_2D_GP_GRADIENT_12_2_26: Computes gradients at Gauss Integration Points.
 %
-% FIXED: Q8 Gauss Point ordering now matches Abaqus Row-Major scan.
+% FIXED: Q4/Q8 Ordering Updated based on user feedback.
+%        Q4: Switched from CCW to Tensor Product (BL, BR, TL, TR).
+%        Q8: Switched from Row-Major to Column-Major Grid.
 %
 % INPUTS:
 %  X, Y         : [N x 1] Nodal Coordinates
@@ -30,22 +32,37 @@ function GP_Data = FEM_2D_GP_gradient_12_2_26(X, Y, Field, Connectivity, Node_La
     GaussRules.T6.eta = [1/6, 1/6, 2/3];
     
     % Q4 (Quad, Linear): 4 Points (2x2)
-    % Abaqus Order: (-,-), (+,-), (+,+), (-,+)
+    % PREVIOUS (CCW): BL, BR, TR, TL. (Failed)
+    % NEW (Tensor Product): BL, BR, TL, TR.
+    % Order: (-,-), (+,-), (-,+), (+,+)
     pt = 1/sqrt(3);
-    GaussRules.Q4.xi  = [-pt,  pt,  pt, -pt];
+    GaussRules.Q4.xi  = [-pt,  pt, -pt,  pt];
     GaussRules.Q4.eta = [-pt, -pt,  pt,  pt];
     
     % Q8 (Quad, Quadratic): 9 Points (3x3 Full Integration)
-    % FIXED: Explicit Row-Major ordering to match Abaqus
-    % (-r,-r), (0,-r), (r,-r), (-r,0), (0,0), ...
+    % PREVIOUS (Row-Major): Horizontal Scan. (Failed)
+    % NEW (Column-Major): Vertical Scan.
     sq35 = sqrt(3/5);
     r = sq35; 
-    % Row 1 (Bottom, eta = -r)
-    xi_q8  = [-r,  0,  r,  -r, 0, r,  -r, 0, r];
-    eta_q8 = [-r, -r, -r,   0, 0, 0,   r, r, r];
     
-    GaussRules.Q8.xi  = xi_q8;
-    GaussRules.Q8.eta = eta_q8;
+    % Generate Column-Major vectors (Scan Y fast, X slow)
+    % Cols: Left (-r), Center (0), Right (r)
+    % Rows: Bot (-r), Mid (0), Top (r)
+    
+    % Left Column (xi = -r)
+    col1_xi  = [-r, -r, -r];
+    col1_eta = [-r,  0,  r];
+    
+    % Center Column (xi = 0)
+    col2_xi  = [0, 0, 0];
+    col2_eta = [-r, 0, r];
+    
+    % Right Column (xi = r)
+    col3_xi  = [r, r, r];
+    col3_eta = [-r, 0, r];
+    
+    GaussRules.Q8.xi  = [col1_xi, col2_xi, col3_xi];
+    GaussRules.Q8.eta = [col1_eta, col2_eta, col3_eta];
     
     % 3. Pre-allocate Output
     nElem = size(Connectivity, 1);
