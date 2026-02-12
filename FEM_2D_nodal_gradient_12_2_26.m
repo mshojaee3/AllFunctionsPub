@@ -52,8 +52,9 @@ function [gradXgp, gradYgp, gradXnp, gradYnp] = FEM_2D_nodal_gradient_12_2_26(X,
     gp.T3 = struct('xi', 1/3, 'eta', 1/3);
     % T6: 3-point rule in barycentric coordinates mapped to (xi=L1, eta=L2)
     % (L1,L2,L3) = (1/6,1/6,2/3), (1/6,2/3,1/6), (2/3,1/6,1/6)
-    gp.T6 = struct('xi',  [1/6, 1/6, 2/3], ...
-                   'eta', [1/6, 2/3, 1/6]);
+    gp.T6 = struct('xi',  [1/6, 2/3, 1/6], ...
+               'eta', [1/6, 1/6, 2/3]);
+
     % Q4/Q8: 2x2 Gauss points
     gp.Q4 = struct('xi',  [-g, +g, +g, -g], ...
                    'eta', [-g, -g, +g, +g]);
@@ -182,16 +183,37 @@ end
 %% Helper: Shape Function Derivatives
 function [dN_dxi, dN_deta] = get_shape_derivatives(xi, eta, type)
     switch upper(type)
-        case 'T3' % Linear Triangle (parent coords: (0,0),(1,0),(0,1))
-            % N1=xi, N2=eta, N3=1-xi-eta (or another convention)
-            % Your original derivatives correspond to that convention:
-            dN_dxi  = [1, 0, -1];
-            dN_deta = [0, 1, -1];
+ case 'T3'  % Linear triangle, nodes at (0,0),(1,0),(0,1)
+    % Abaqus-standard: N1=1-xi-eta, N2=xi, N3=eta
+    dN_dxi  = [-1,  1,  0];
+    dN_deta = [-1,  0,  1];
 
-        case 'T6' % Quadratic Triangle with L1=xi, L2=eta, L3=1-xi-eta
-            L1 = xi; L2 = eta; L3 = 1 - xi - eta;
-            dN_dxi  = [4*L1-1, 0, 1-4*L3, 4*L2, -4*L2, 4*(L3-L1)];
-            dN_deta = [0, 4*L2-1, 1-4*L3, -4*L1, 4*L1, 4*(L3-L2)];
+
+        case 'T6'
+    L1 = 1 - xi - eta;
+    L2 = xi;
+    L3 = eta;
+
+    % dL1/dxi=-1, dL1/deta=-1, dL2/dxi=1, dL2/deta=0, dL3/dxi=0, dL3/deta=1
+
+    dN_dxi = [ ...
+        1 - 4*L1, ...      % dN1/dxi
+        4*L2 - 1, ...      % dN2/dxi
+        0, ...             % dN3/dxi
+        4*(L1 - L2), ...   % dN4/dxi
+        4*L3, ...          % dN5/dxi
+        -4*L3 ...          % dN6/dxi
+    ];
+
+    dN_deta = [ ...
+        1 - 4*L1, ...      % dN1/deta
+        0, ...             % dN2/deta
+        4*L3 - 1, ...      % dN3/deta
+        -4*L2, ...         % dN4/deta
+        4*L2, ...          % dN5/deta
+        4*(L1 - L3) ...    % dN6/deta
+    ];
+
 
         case 'Q4' % Linear Quad
             dN_dxi  = 0.25 * [-(1-eta),  (1-eta), (1+eta), -(1+eta)];
@@ -215,3 +237,4 @@ function [dN_dxi, dN_deta] = sd_Q8(xi, eta)
         (1-xi)*(2*eta+xi), (1+xi)*(2*eta-xi), (1+xi)*(2*eta+xi), (1-xi)*(2*eta-xi), ...
         -2*(1-xi^2), -4*eta*(1+xi), 2*(1-xi^2), -4*eta*(1-xi) ];
 end
+
