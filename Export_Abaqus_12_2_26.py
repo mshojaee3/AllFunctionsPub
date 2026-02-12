@@ -519,35 +519,95 @@ class Export_Abaqus2CSV(object):
                 w.writerow(row)
 
         print(' -> GaussData:', filename)
+    
+    # -------------------------
+    # High-level export
+    # -------------------------
+    
+    def _get_step_and_frame_indices(self, frames='last'):
+        """
+        frames:
+          - 'last'  -> export only last frame (or self.frame_index if explicitly set)
+          - 'all'   -> export all frames in step
+          - list/tuple of ints -> export those frame indices
+        returns: (step_obj, frame_indices)
+        """
+        step_keys = list(self.odb.steps.keys())
+        if self.step_name is None:
+            self.step_name = step_keys[-1]
 
+        step = self.odb.steps[self.step_name]
+
+        # Decide frame indices
+        if frames == 'all':
+            idxs = list(range(len(step.frames)))
+        elif frames == 'last' or frames is None:
+            # respect explicit self.frame_index if user set it, otherwise last
+            fi = self.frame_index if self.frame_index is not None else -1
+            # normalize negative
+            if fi < 0:
+                fi = len(step.frames) + fi
+            idxs = [fi]
+        else:
+            # user passed explicit indices
+            idxs = list(frames)
+        return step, idxs
+    
+    
     # -------------------------
     # High-level export
     # -------------------------
     def export(self, connectivity=True, nodal=True, gauss=True,
                export_X=True, export_U=True, export_E=False, export_LE=True, export_S=False,
                export_gauss_coords=True,
-               nodal_tensor_position='NODAL'):
+               nodal_tensor_position='NODAL',
+               frames='last',                 # <-- NEW: 'last' or 'all' or [0,5,9]
+               suffix_with_step_frame=True):  # <-- NEW
         try:
             self.open()
-    
+
+            # Connectivity once
             if connectivity:
                 self.export_connectivity()
-    
-            if nodal:
-                self.export_nodal(export_X=export_X,
-                                  export_U=export_U,
-                                  export_E=export_E,
-                                  export_LE=export_LE,
-                                  export_S=export_S,
-                                  nodal_tensor_position=nodal_tensor_position)
-    
-            if gauss:
-                self.export_gauss(export_E=export_E,
-                                  export_LE=export_LE,
-                                  export_S=export_S,
-                                  export_coords=export_gauss_coords)
+
+            # Decide which frames to export
+            step, frame_indices = self._get_step_and_frame_indices(frames=frames)
+
+            for fi in frame_indices:
+                self.frame_index = fi
+                self.frame = step.frames[fi]
+
+                # Filename suffix
+                suf = ''
+                if suffix_with_step_frame:
+                    suf = '_%s_f%04d' % (self.step_name, fi)
+
+                if nodal:
+                    self.export_nodal(
+                        filename=self.out_prefix + suf + '_NodalData.csv',
+                        export_X=export_X,
+                        export_U=export_U,
+                        export_E=export_E,
+                        export_LE=export_LE,
+                        export_S=export_S,
+                        nodal_tensor_position=nodal_tensor_position
+                    )
+
+                if gauss:
+                    self.export_gauss(
+                        filename=self.out_prefix + suf + '_GaussData.csv',
+                        export_E=export_E,
+                        export_LE=export_LE,
+                        export_S=export_S,
+                        export_coords=export_gauss_coords
+                    )
+
+            print("Done. Exported %d frame(s) from step '%s'." % (len(frame_indices), self.step_name))
+
         finally:
             self.close()
+
+
 
 
 
