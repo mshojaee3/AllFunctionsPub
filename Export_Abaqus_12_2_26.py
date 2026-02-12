@@ -28,8 +28,8 @@
 #         return None
 
 
-#Download_py_lib_from_github("Export_Abaqus_2_12_2026.py")
-#from Export_Abaqus_2_12_2026 import Export_Abaqus2CSV
+#Download_py_lib_from_github("Export_Abaqus_12_2_26.py")
+#from Export_Abaqus_12_2_26 import Export_Abaqus2CSV
 #exp = Export_Abaqus2CSV(JOB + '.odb', out_prefix=JOB, step_name=STEP, frame_index=-1)
 #exp.export(connectivity=True, nodal=True, gauss=True,
 #           export_X=True, export_U=True, export_E=True, export_LE=True, export_S=True,
