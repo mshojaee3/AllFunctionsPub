@@ -588,7 +588,8 @@ class Export_Abaqus2CSV(object):
                export_gauss_coords=True,
                nodal_tensor_position='NODAL',
                frames='last',                 # <-- NEW: 'last' or 'all' or [0,5,9]
-               suffix_with_step_frame=True):  # <-- NEW
+               suffix_with_step_frame=True,
+               ALLSE=True):  
         try:
             self.open()
 
