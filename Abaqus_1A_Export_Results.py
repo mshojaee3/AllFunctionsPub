@@ -2,7 +2,7 @@
 # Example call
 # -------------------------
 # RAW_BASE = "https://raw.githubusercontent.com/mshojaee3/AllFunctionsPub/main/"
-# def Download_py_lib_from_github(py_name):
+# def Py_1A_download_lib_from_github(py_name):
 #     # folder of this script (fallback to cwd)
 #     try:
 #         d = os.path.dirname(os.path.abspath(__file__))
