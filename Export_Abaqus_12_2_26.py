@@ -584,7 +584,7 @@ class Export_Abaqus2CSV(object):
 
                 if nodal:
                     self.export_nodal(
-                        filename=self.out_prefix + suf + '_NodalData.csv',
+                        filename=self.out_prefix + '_NodalData' + suf + '.csv',
                         export_X=export_X,
                         export_U=export_U,
                         export_E=export_E,
@@ -595,7 +595,7 @@ class Export_Abaqus2CSV(object):
 
                 if gauss:
                     self.export_gauss(
-                        filename=self.out_prefix + suf + '_GaussData.csv',
+                        filename=self.out_prefix + '_GaussData' + suf + '.csv',
                         export_E=export_E,
                         export_LE=export_LE,
                         export_S=export_S,
