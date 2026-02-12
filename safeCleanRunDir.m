@@ -1,4 +1,7 @@
-%
+% ------------------------- 
+%Example call 
+%-------------------------
+% AllFunctions.safeCleanRunDir(simDir)
 %% ==========================================================
 % Local function: safe cleaning (never crashes if files are locked)
 % ==========================================================
@@ -40,3 +43,4 @@ function safeCleanRunDir(runDir)
     end
 
 end
+
