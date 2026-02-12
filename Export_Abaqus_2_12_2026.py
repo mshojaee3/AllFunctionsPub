@@ -448,16 +448,27 @@ class Export_Abaqus2CSV(object):
     # -------------------------
     def export(self, connectivity=True, nodal=True, gauss=True,
                export_X=True, export_U=True, export_E=False, export_LE=True, export_S=False,
-               export_gauss_coords=True):
+               export_gauss_coords=True,
+               nodal_tensor_position='NODAL'):
         try:
             self.open()
+    
             if connectivity:
                 self.export_connectivity()
+    
             if nodal:
-                self.export_nodal(export_X=export_X, export_U=export_U)
+                self.export_nodal(export_X=export_X,
+                                  export_U=export_U,
+                                  export_E=export_E,
+                                  export_LE=export_LE,
+                                  export_S=export_S,
+                                  nodal_tensor_position=nodal_tensor_position)
+    
             if gauss:
-                self.export_gauss(export_E=export_E, export_LE=export_LE,
-                                  export_S=export_S, export_coords=export_gauss_coords)
+                self.export_gauss(export_E=export_E,
+                                  export_LE=export_LE,
+                                  export_S=export_S,
+                                  export_coords=export_gauss_coords)
         finally:
             self.close()
 
