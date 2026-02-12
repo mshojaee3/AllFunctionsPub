@@ -3,7 +3,7 @@ function GP_Data = FEM_2D_GP_gradient_12_2_26(X, Y, Field, Connectivity, Node_La
 %
 % FIXED: Q4/Q8 Ordering Updated based on user feedback.
 %        Q4: Switched from CCW to Tensor Product (BL, BR, TL, TR).
-%        Q8: Switched from Row-Major to Column-Major Grid.
+%        Q8: Reverted to Row-Major (Tensor Product) to match Q4 logic.
 %
 % INPUTS:
 %  X, Y         : [N x 1] Nodal Coordinates
@@ -40,29 +40,21 @@ function GP_Data = FEM_2D_GP_gradient_12_2_26(X, Y, Field, Connectivity, Node_La
     GaussRules.Q4.eta = [-pt, -pt,  pt,  pt];
     
     % Q8 (Quad, Quadratic): 9 Points (3x3 Full Integration)
-    % PREVIOUS (Row-Major): Horizontal Scan. (Failed)
-    % NEW (Column-Major): Vertical Scan.
+    % PREVIOUS Attempt (Row-Major) failed? Re-verifying logic.
+    % Since Q4 works with Tensor Product (Row-Major), Q8 MUST be Row-Major.
+    % Order: Bottom Row (L,M,R), Mid Row (L,M,R), Top Row (L,M,R).
     sq35 = sqrt(3/5);
     r = sq35; 
     
-    % Generate Column-Major vectors (Scan Y fast, X slow)
-    % Cols: Left (-r), Center (0), Right (r)
-    % Rows: Bot (-r), Mid (0), Top (r)
+    % Row 1 (Bottom, eta = -r)
+    r1_xi = [-r, 0, r]; r1_eta = [-r, -r, -r];
+    % Row 2 (Mid, eta = 0)
+    r2_xi = [-r, 0, r]; r2_eta = [0, 0, 0];
+    % Row 3 (Top, eta = r)
+    r3_xi = [-r, 0, r]; r3_eta = [r, r, r];
     
-    % Left Column (xi = -r)
-    col1_xi  = [-r, -r, -r];
-    col1_eta = [-r,  0,  r];
-    
-    % Center Column (xi = 0)
-    col2_xi  = [0, 0, 0];
-    col2_eta = [-r, 0, r];
-    
-    % Right Column (xi = r)
-    col3_xi  = [r, r, r];
-    col3_eta = [-r, 0, r];
-    
-    GaussRules.Q8.xi  = [col1_xi, col2_xi, col3_xi];
-    GaussRules.Q8.eta = [col1_eta, col2_eta, col3_eta];
+    GaussRules.Q8.xi  = [r1_xi, r2_xi, r3_xi];
+    GaussRules.Q8.eta = [r1_eta, r2_eta, r3_eta];
     
     % 3. Pre-allocate Output
     nElem = size(Connectivity, 1);
