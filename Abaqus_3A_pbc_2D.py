@@ -1,3 +1,45 @@
+# -------------------------
+# Example call
+# -------------------------
+# RAW_BASE = "https://raw.githubusercontent.com/mshojaee3/AllFunctionsPub/main/"
+# def Py_1A_download_lib_from_github(py_name):
+#     # folder of this script (fallback to cwd)
+#     try:
+#         d = os.path.dirname(os.path.abspath(__file__))
+#     except Exception:
+#         d = os.getcwd()
+#     # save locally with spaces removed (import-friendly)
+#     local_name = py_name.replace(' ', '')
+#     local_path = os.path.join(d, local_name)
+#     if os.path.isfile(local_path):
+#         return local_path
+#     url = RAW_BASE + py_name.replace(' ', '%20')
+#     try:
+#         try:
+#             from urllib.request import urlopen  # Py3
+#         except ImportError:
+#             from urllib2 import urlopen         # Py2
+#         data = urlopen(url).read()
+#         with open(local_path, 'wb') as f:
+#             f.write(data)
+#         return local_path
+#     except Exception as e:
+#         print("Could not download:", url, "|", str(e))
+#         return None
+#
+#
+#Py_1A_download_lib_from_github("Abaqus_3A_pbc_2D.py")
+# from Abaqus_3A_pbc_2D import PBC2DContext
+# ctx = PBC2DContext(model, a, inst, dec=8, tol=TOL)
+# 
+# ctx.setup(step_name=STEP,
+#           H11=H11, H12=H12,
+#           H21=H21, H22=H22,
+#           make_anchors=True,
+#           anchors_step='Initial',
+#           exclude_corners=True,
+#           eq_prefix='PBC')
+
 # 2D_pbc.py
 from abaqusConstants import *
 from regionToolset import Region
