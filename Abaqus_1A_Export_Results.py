@@ -64,7 +64,7 @@ class Export_Abaqus2CSV(object):
         try:
             return open(path, 'w', newline='')   # Py3
         except TypeError:
-            return open(path, 'wb')              # Py2
+            return open(path, 'wb')             # Py2
 
     # -------------------------
     # Safe Abaqus access
@@ -100,8 +100,6 @@ class Export_Abaqus2CSV(object):
         return base[:n]
 
     def _tensor_comp_labels(self, prefix, ncomp):
-        if ncomp == 1:
-            return [prefix]  # Scalar (e.g., ESEDEN)
         if ncomp == 3:
             return [prefix+'11', prefix+'22', prefix+'12']
         if ncomp == 4:
@@ -130,10 +128,10 @@ class Export_Abaqus2CSV(object):
                     odb_obj = openOdb(path=self.odb_or_path, readOnly=False)
                 except Exception as e:
                     raise RuntimeError("Could not open ODB: %s  (%s)" % (self.odb_or_path, str(e)))
-        
+    
             self.odb = odb_obj
             self.close_odb_on_done = True
-        
+    
         # Instance selection
         # Instance selection (ROBUST)
         inst_names = list(self.odb.rootAssembly.instances.keys())
@@ -401,19 +399,17 @@ class Export_Abaqus2CSV(object):
 
 
     # -------------------------
-    # Export: Gauss Data (E, LE, S, ESEDEN + optional coords)
+    # Export: Gauss Data (E, LE, S + optional coords)
     # -------------------------
-    def export_gauss(self, filename=None, export_E=False, export_LE=True, export_S=False, 
-                     export_ESEDEN=False, # <-- NEW ARGUMENT
+    def export_gauss(self, filename=None, export_E=False, export_LE=True, export_S=False,
                      export_coords=True):
         if filename is None:
             filename = self.out_prefix + '_GaussData.csv'
 
         req = []
-        if export_E:      req.append(('E',  'E'))
-        if export_LE:     req.append(('LE', 'LE'))
-        if export_S:      req.append(('S',  'S'))
-        if export_ESEDEN: req.append(('ESEDEN', 'ESEDEN')) # <-- NEW REQUEST
+        if export_E:  req.append(('E',  'E'))
+        if export_LE: req.append(('LE', 'LE'))
+        if export_S:  req.append(('S',  'S'))
 
         # choose base field for iteration (first available tensor)
         base_values = None
@@ -483,14 +479,7 @@ class Export_Abaqus2CSV(object):
                 break
             if sample is None:
                 continue
-            
-            # SCALAR/TENSOR CHECK
-            # If scalar (like ESEDEN), sample might be float, not tuple/list
-            if isinstance(sample, (float, int)):
-                ncomp = 1
-            else:
-                ncomp = len(sample)
-                
+            ncomp = len(sample)
             comp_counts[fname] = ncomp
             headers += self._tensor_comp_labels(pref, ncomp)
 
@@ -518,14 +507,10 @@ class Export_Abaqus2CSV(object):
                         continue
                     ncomp = comp_counts.get(fname, 0)
                     val = field_ip[fname].get(key, None)
-                    
                     if val is None:
                         row += [float('nan')] * ncomp
                     else:
-                        if ncomp == 1:
-                            row += [val] # Scalar
-                        else:
-                            row += [val[i] for i in range(len(val))]
+                        row += [val[i] for i in range(len(val))]
 
                 w.writerow(row)
 
@@ -600,7 +585,6 @@ class Export_Abaqus2CSV(object):
     # -------------------------
     def export(self, connectivity=True, nodal=True, gauss=True,
                export_X=True, export_U=True, export_E=False, export_LE=True, export_S=False,
-               export_ESEDEN=False, # <-- NEW ARGUMENT
                export_gauss_coords=True,
                nodal_tensor_position='NODAL',
                frames='last',                 # <-- NEW: 'last' or 'all' or [0,5,9]
@@ -645,7 +629,6 @@ class Export_Abaqus2CSV(object):
                         export_E=export_E,
                         export_LE=export_LE,
                         export_S=export_S,
-                        export_ESEDEN=export_ESEDEN, # <-- Pass it down
                         export_coords=export_gauss_coords
                     )
 
@@ -653,7 +636,3 @@ class Export_Abaqus2CSV(object):
 
         finally:
             self.close()
-
-
-
-
