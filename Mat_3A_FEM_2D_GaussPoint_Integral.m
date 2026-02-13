@@ -1,46 +1,33 @@
-function [Integral_Val, Total_Area, dArea_Vector] = FEM_2D_GP_Integral_12_2_26(X, Y, Field, Connectivity, Node_Labels)
-% FEM_2D_GP_INTEGRAL_12_2_26: Calculates surface integral of a field.
-%
-% AUTOMATION UPDATE:
-%   - Automatically detects if 'Field' is Nodal or Gauss Point data.
-%   - If Nodal (Size == NumNodes): Interpolates to GP using Shape Functions.
-%   - If GP (Size != NumNodes): Uses GP values directly (Sequential).
+function [Integral_Val, Total_Area] = Mat_3A_FEM_2D_GaussPoint_Integral(X, Y, Field_GP, Connectivity, Node_Labels)
+% FEM_2D_GP_INTEGRAL_12_2_26: Integrates a Gauss Point field over the domain.
 %
 % INPUTS:
-%  X, Y         : [N x 1] Nodal Coordinates
-%  Field        : [N x 1] OR [Total_IPs x 1] Data Vector
+%  X, Y         : [N x 1] Nodal Coordinates (for calculating Jacobian/Area)
+%  Field_GP     : [N_IP x 1] Field values exactly at Integration Points
+%                 (Must match Abaqus output order: Elem 1 IPs, Elem 2 IPs...)
 %  Connectivity : [E x M] Element Matrix
 %  Node_Labels  : [N x 1] User Node IDs
 %
 % OUTPUTS:
-%  Integral_Val : Scalar result of Int(Field) dA
-%  Total_Area   : Scalar result of Int(1) dA
-%  dArea_Vector : [Total_IPs x 1] Vector of dA for each Gauss Point
+%  Integral_Val : Sum(Field_i * dA_i)
+%  Total_Area   : Sum(dA_i)
 
     % 1. Map Node Labels to Indices
     max_lbl = max(Node_Labels);
     Map = zeros(max_lbl, 1);
     Map(Node_Labels) = 1:length(Node_Labels);
 
-    % 2. Input Type Detection
-    nNodes = length(X);
-    nField = length(Field);
-    isNodal = (nField == nNodes);
-    
-    if isNodal
-        fprintf('   [Integral] Mode: Nodal Interpolation (%d Nodes)\n', nNodes);
-    else
-        fprintf('   [Integral] Mode: Direct Gauss Point Summation (%d Points)\n', nField);
-    end
+    % 2. Check Input Size
+    nGP_Input = length(Field_GP);
 
-    % 3. Define Gauss Rules (Row-Major / Tensor Product)
+    % 3. Define Gauss Rules (Row-Major / Tensor Product to match Abaqus)
     GaussRules = struct();
     
     % T3
     GaussRules.T3.xi = [1/3]; GaussRules.T3.eta = [1/3]; GaussRules.T3.w = [0.5];
     % T6
     GaussRules.T6.xi = [1/6, 2/3, 1/6]; GaussRules.T6.eta = [1/6, 1/6, 2/3]; GaussRules.T6.w = [1/6, 1/6, 1/6];
-    % Q4 (Row-Major)
+    % Q4 (Row-Major: BL, BR, TL, TR)
     pt = 1/sqrt(3);
     GaussRules.Q4.xi = [-pt, pt, -pt, pt]; GaussRules.Q4.eta = [-pt, -pt, pt, pt]; GaussRules.Q4.w = ones(1,4);
     % Q8 (Row-Major)
@@ -57,16 +44,10 @@ function [Integral_Val, Total_Area, dArea_Vector] = FEM_2D_GP_Integral_12_2_26(X
     Integral_Val = 0.0;
     Total_Area = 0.0;
     
-    % Pre-allocate output vector (estimate size)
-    nElem = size(Connectivity, 1);
-    estSize = nElem * 9; 
-    dArea_Vector = zeros(estSize, 1); 
-    rowCount = 0;
-    
-    % Global Counter for GP Mode
-    gp_global_idx = 0;
+    global_ip_idx = 0; % Tracks position in Field_GP vector
 
     % 5. Loop over Elements
+    nElem = size(Connectivity, 1);
     [~, totalCols] = size(Connectivity);
     
     for e = 1:nElem
@@ -90,59 +71,38 @@ function [Integral_Val, Total_Area, dArea_Vector] = FEM_2D_GP_Integral_12_2_26(X
         xe = X(idx);
         ye = Y(idx);
         
-        % If Nodal Mode: Fetch nodal values for this element
-        if isNodal
-            fe = Field(idx);
-        end
-        
         rule = GaussRules.(mType);
         numIPs = length(rule.xi);
         
         for ip = 1:numIPs
+            global_ip_idx = global_ip_idx + 1;
+            
+            % Safety Break
+            if global_ip_idx > nGP_Input
+                error('Mismatch: Mesh has more Integration Points than the Input Field (%d vs %d). Check export.', global_ip_idx, nGP_Input);
+            end
+
             xi  = rule.xi(ip);
             eta = rule.eta(ip);
             w   = rule.w(ip);
             
-            % Increment global counter
-            gp_global_idx = gp_global_idx + 1;
-            
-            % A. Geometry (Jacobian)
-            [N, dN_dxi, dN_deta] = get_shape_funcs_and_derivs(xi, eta, mType);
+            % 1. Calculate Area Jacobian (dA)
+            [~, dN_dxi, dN_deta] = get_shape_funcs_and_derivs(xi, eta, mType);
             J = [dN_dxi * xe,  dN_dxi * ye;
                  dN_deta * xe, dN_deta * ye];
-            detJ = det(J);
-            dArea = abs(detJ) * w;
+            dArea = abs(det(J)) * w;
             
-            % B. Get Field Value
-            if isNodal
-                val_gp = N * fe; % Interpolate
-            else
-                % Safety check for GP mode
-                if gp_global_idx > nField
-                    error('Error: Mesh has more Gauss Points than the Input Field vector (%d vs %d).', gp_global_idx, nField);
-                end
-                val_gp = Field(gp_global_idx); % Direct Access
-            end
+            % 2. Retrieve Field Value Directly
+            val = Field_GP(global_ip_idx);
             
-            % C. Accumulate
-            Integral_Val = Integral_Val + val_gp * dArea;
+            % 3. Integrate
+            Integral_Val = Integral_Val + val * dArea;
             Total_Area   = Total_Area + dArea;
-            
-            % Store dArea
-            rowCount = rowCount + 1;
-            if rowCount > length(dArea_Vector) % Expand if needed
-                dArea_Vector = [dArea_Vector; zeros(nElem, 1)]; 
-            end
-            dArea_Vector(rowCount) = dArea;
         end
     end
     
-    % Final Cleanup
-    dArea_Vector = dArea_Vector(1:rowCount);
-    
-    % Warning for mismatched GP data size
-    if ~isNodal && gp_global_idx ~= nField
-        warning('Input Field has %d points, but mesh processed %d Gauss Points. Integral might be misaligned.', nField, gp_global_idx);
+    if global_ip_idx ~= nGP_Input
+        warning('Mesh processed %d IPs, but Input Field had %d. Some data may have been ignored.', global_ip_idx, nGP_Input);
     end
 end
 
