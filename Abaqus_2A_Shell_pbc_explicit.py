@@ -318,7 +318,8 @@ class PBCContext(object):
               name_prefix='PBC',
               # switches exposed but optional (defaults match your old)
               PBC_X_U1=True, PBC_X_U2=True, PBC_X_U3=True,
-              PBC_Y_U1=True, PBC_Y_U2=True, PBC_Y_U3=True):
+              PBC_Y_U1=True, PBC_Y_U2=True, PBC_Y_U3=True,
+              amplitude=None):
         """
         One call: anchors + PBC equations + macro BCs.
         Keeps your external usage the same (H,K dicts).
@@ -331,7 +332,7 @@ class PBCContext(object):
             exclude_edge_on_y=exclude_edge_on_y
         )
         # Apply macro loads
-        self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=None)
+        self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=amplitude)
         return info
 
 
