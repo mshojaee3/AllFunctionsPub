@@ -1,4 +1,4 @@
-function [Integral_Val, Total_Vol] = Mat_3A_FEM_3D_GaussPoint_Integral(X, Y, Z, Field_GP, Connectivity, Node_Labels)
+function [Integral_Val, Total_Vol] = Mat_3B_FEM_3D_GaussPoint_Integral(X, Y, Z, Field_GP, Connectivity, Node_Labels)
 % FEM_3D_GP_INTEGRAL: Integrates a Gauss Point field over a 3D domain.
 %
 % Fully supports Abaqus Standard, Reduced, Hybrid (H), and Modified (M) Elements:
