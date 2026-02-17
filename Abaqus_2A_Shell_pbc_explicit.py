@@ -273,7 +273,7 @@ class PBCContext(object):
     # ----------------------------
     # Macro BCs (keep your logic)
     # ----------------------------
-    def apply_macro_BCs(self, step_name, H, K, amplitude=None):
+    def apply_macro_BCs(self, step_name, H, K, amplitude=amplitude):
         # same as your original logic, but uses sets created here
         if 'BC_RPHX' not in self.model.boundaryConditions.keys():
             self.model.DisplacementBC(
