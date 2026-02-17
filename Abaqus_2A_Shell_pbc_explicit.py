@@ -382,7 +382,7 @@ class PBCContext(object):
         if len(rps) == 0:
             raise RuntimeError("No reference points found in RP sets.")
         
-        set_name = 'RP_MASS_SET'
+        set_name = 'RP_MASS_SET' 
         if set_name not in self.a.sets.keys():
             self.a.Set(name=set_name, referencePoints=tuple(rps))
         
