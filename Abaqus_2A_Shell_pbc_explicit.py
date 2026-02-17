@@ -387,8 +387,7 @@ class PBCContext(object):
             self.a.Set(name=set_name, referencePoints=tuple(rps))
         
         mass_name = 'MASS_RP_TINY'
-        if mass_name not in self.model.inertialProperties.keys():
-            self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
+        self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
         
         return info
 
