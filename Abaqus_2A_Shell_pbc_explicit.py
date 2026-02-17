@@ -369,6 +369,27 @@ class PBCContext(object):
         )
         # Apply macro loads
         self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=amplitude)
+        
+        # --- tiny mass on RPs for Explicit packaging (no new def/method)
+        rp_sets = ('RPHX', 'RPHY', 'RPKX', 'RPKY')
+        rps = []
+        for sname in rp_sets:
+            if sname not in self.a.sets.keys():
+                raise RuntimeError("RP set '%s' not found. Make sure ensure_macro_rps_legacy() ran." % sname)
+            for rp in self.a.sets[sname].referencePoints:
+                rps.append(rp)
+        
+        if len(rps) == 0:
+            raise RuntimeError("No reference points found in RP sets.")
+        
+        set_name = 'RP_MASS_SET'
+        if set_name not in self.a.sets.keys():
+            self.a.Set(name=set_name, referencePoints=tuple(rps))
+        
+        mass_name = 'MASS_RP_TINY'
+        if mass_name not in self.model.inertialProperties.keys():
+            self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
+        
         return info
 
 
