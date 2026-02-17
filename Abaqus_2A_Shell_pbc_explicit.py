@@ -1,5 +1,5 @@
 class PBCContext(object):
-    """
+    """ 
     PBC helper, written in a style close to the original script:
       - builds coord_to_label using rounded coords
       - anchor node sets (ANCH_ORIGIN, ANCH_X, ANCH_Y)
