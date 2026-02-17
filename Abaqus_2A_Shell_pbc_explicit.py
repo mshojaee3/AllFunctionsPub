@@ -369,26 +369,6 @@ class PBCContext(object):
         )
         # Apply macro loads 
         self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=amplitude)
-        
-        # --- tiny mass on each RP set (Explicit packaging)
-        for sname in ('RPHX', 'RPHY', 'RPKX', 'RPKY'):
-            iname = 'Inertia_%s' % sname
-            if iname not in self.a.engineeringFeatures.inertias.keys():
-                self.a.engineeringFeatures.PointMassInertia(
-                    name=iname,
-                    region=self.a.sets[sname],
-                    mass=1e-12,
-                    alpha=0.0,
-                    composite=0.0
-                )
-            else:
-                self.a.engineeringFeatures.inertias[iname].setValues(
-                    region=self.a.sets[sname],
-                    mass=1e-12,
-                    alpha=0.0,
-                    composite=0.0
-                )
-        
         return info
 
 
