@@ -1,4 +1,4 @@
-function [Moment_Val, Integral_Val, Total_Vol] = Mat_3B_FEM_3D_GaussPoint_Torque(X, Y, Z, Field_GP, Center, Connectivity, Node_Labels)
+function [Moment_Val, Integral_Val, Total_Vol] = Mat_3C_FEM_3D_GaussPoint_Torque(X, Y, Z, Field_GP, Center, Connectivity, Node_Labels)
 % Integrates the Torque (or First Moment) of a Gauss Point field over a 3D domain.
 %
 % INPUTS:
