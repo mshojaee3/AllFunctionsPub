@@ -367,7 +367,7 @@ class PBCContext(object):
             PBC_Y_U1=PBC_Y_U1, PBC_Y_U2=PBC_Y_U2, PBC_Y_U3=PBC_Y_U3,
             exclude_edge_on_y=exclude_edge_on_y
         )
-        # Apply macro loads
+        # Apply macro loads 
         self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=amplitude)
         
         # --- tiny mass on RPs for Explicit packaging (no new def/method)
