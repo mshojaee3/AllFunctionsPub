@@ -1,4 +1,4 @@
-function GP_Data = Mat_2B_FEM_2D_GP_gradient(X, Y, Field, Connectivity, Node_Labels)
+function GP_Data = Mat_2D_FEM_2D_GaussPoint_gradient_from_GaussPoint(X, Y, Field, Connectivity, Node_Labels)
 % FEM_2D_GP_GRADIENT_12_2_26: Computes gradients at Gauss Integration Points.
 %
 % FIXED: Q4/Q8 Ordering Updated based on user feedback.

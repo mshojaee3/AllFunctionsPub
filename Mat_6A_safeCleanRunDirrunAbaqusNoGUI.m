@@ -1,4 +1,4 @@
-function [status, logFile, cmd] = Mat_6A_runAbaqusNoGUI(pyScript, runDir, varargin)
+function [status, logFile, cmd] = Mat_6A_safeCleanRunDirrunAbaqusNoGUI(pyScript, runDir, varargin)
 % runAbaqusNoGUI  Run Abaqus/CAE in noGUI mode for an *existing* Python script.
 %
 % Usage:

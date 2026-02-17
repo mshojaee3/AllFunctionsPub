@@ -1,5 +1,5 @@
-function [gradX, gradY] = FEM_2D_nodal_gradient_11_2_26(X, Y, Field, Connectivity, Node_Labels)
-% upupFEM_2D_NODAL_GRADIENT_11_2_26: Mixed-mesh compatible gradient calculation.
+function [gradX, gradY] = Mat_2A_FEM_2D_nodal_gradient(X, Y, Field, Connectivity, Node_Labels)
+% Mat_2A_FEM_2D_nodal_gradient: Mixed-mesh compatible gradient calculation.
 %
 % INPUTS:
 %  X            : [N x 1] Vector of Nodal X-coordinates
