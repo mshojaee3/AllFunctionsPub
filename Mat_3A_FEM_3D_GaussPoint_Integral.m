@@ -124,8 +124,14 @@ function GR = build_gauss_rules()
     wts3 = [5/9, 8/9, 5/9];
     [X,Y,Z] = ndgrid(pts3, pts3, pts3);
     [WX,WY,WZ] = ndgrid(wts3, wts3, wts3);
-    GR.HEX20_27.xi = X(:)'; GR.HEX20_27.eta = Y(:)'; GR.HEX20_27.zeta = Z(:)';
-    GR.HEX20_27.w = (WX .* WY .* WZ)';
+    
+    GR.HEX20_27.xi = X(:)'; 
+    GR.HEX20_27.eta = Y(:)'; 
+    GR.HEX20_27.zeta = Z(:)';
+    
+    % FIX: Flatten the 3x3x3 weight matrix into a 1x27 row vector
+    W_mat = WX .* WY .* WZ;
+    GR.HEX20_27.w = W_mat(:)';
 
     % TET4 / C3D4 (1 IP)
     GR.TET4_1.xi = 1/4; GR.TET4_1.eta = 1/4; GR.TET4_1.zeta = 1/4; GR.TET4_1.w = 1/6;
