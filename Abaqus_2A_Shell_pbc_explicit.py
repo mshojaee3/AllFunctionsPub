@@ -387,7 +387,10 @@ class PBCContext(object):
             self.a.Set(name=set_name, referencePoints=tuple(rps))
         
         mass_name = 'MASS_RP_TINY'
-        self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
+        try:
+            self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
+        except:
+            pass
         
         return info
 
