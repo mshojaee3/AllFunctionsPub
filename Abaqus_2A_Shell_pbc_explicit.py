@@ -172,34 +172,51 @@ class PBCContext(object):
             setB = self.node_set_name(labB)
             # X-U1
             if PBC_X_U1:
-                terms = (
+                terms = [
                     ( 1.0, setA, 1),
-                    (-1.0, setB, 1),
-                    (-self.Lx*1.0, 'RPHX', 1),
-                    ( self.Lx*zrel, 'RPKX', 1),
-                )
+                    (-1.0, setB, 1)
+                ]
+                if abs(-self.Lx*1.0) > 1e-12:
+                    terms.append((-self.Lx*1.0, 'RPHX', 1))
+                
+                if abs(self.Lx*zrel) > 1e-12:
+                    terms.append(( self.Lx*zrel, 'RPKX', 1))
+                
                 eqn_count_x_u1 += 1
-                self.model.Equation(name='PBC_X_U1_%06d' % eqn_count_x_u1, terms=terms)
+                self.model.Equation(name='PBC_X_U1_%06d' % eqn_count_x_u1, terms=tuple(terms))
+            
             # X-U2
             if PBC_X_U2:
-                terms = (
+                terms = [
                     ( 1.0, setA, 2),
-                    (-1.0, setB, 2),
-                    (-self.Lx*1.0, 'RPHX', 2),
-                    ( self.Lx*zrel, 'RPKX', 2),
-                )
+                    (-1.0, setB, 2)
+                ]
+                
+                if abs(-self.Lx*1.0) > 1e-12:
+                    terms.append((-self.Lx*1.0, 'RPHX', 2))
+                
+                if abs(self.Lx*zrel) > 1e-12:
+                    terms.append(( self.Lx*zrel, 'RPKX', 2))
+                
                 eqn_count_x_u2 += 1
-                self.model.Equation(name='PBC_X_U2_%06d' % eqn_count_x_u2, terms=terms)
+                self.model.Equation(name='PBC_X_U2_%06d' % eqn_count_x_u2, terms=tuple(terms))
+            
             # X-U3
             if PBC_X_U3:
-                terms = (
+                terms = [
                     ( 1.0, setA, 3),
-                    (-1.0, setB, 3),
-                    (-self.Lx*1.0, 'RPHX', 3),
-                    (-self.Lx*yrel, 'RPKX', 2),
-                )
+                    (-1.0, setB, 3)
+                ]
+                
+                if abs(-self.Lx*1.0) > 1e-12:
+                    terms.append((-self.Lx*1.0, 'RPHX', 3))
+                
+                if abs(-self.Lx*yrel) > 1e-12:
+                    terms.append((-self.Lx*yrel, 'RPKX', 2))
+                
                 eqn_count_x_u3 += 1
-                self.model.Equation(name='PBC_X_U3_%06d' % eqn_count_x_u3, terms=terms)
+                self.model.Equation(name='PBC_X_U3_%06d' % eqn_count_x_u3, terms=tuple(terms))
+            
         # --- Y-plane: nodes at y = Ly (in 0..L coords)
         eqn_count_y_u1 = 0
         eqn_count_y_u2 = 0
@@ -230,36 +247,55 @@ class PBCContext(object):
             labB = self.coord_to_label[partner_key]
             setA = self.node_set_name(labA)
             setB = self.node_set_name(labB)
+            
             # Y-U1
             if PBC_Y_U1:
-                terms = (
+                terms = [
                     ( 1.0, setA, 1),
-                    (-1.0, setB, 1),
-                    (-self.Ly*1.0, 'RPHY', 1),
-                    (+self.Ly*zrel, 'RPKX', 2),
-                )
+                    (-1.0, setB, 1)
+                ]
+                
+                if abs(-self.Ly*1.0) > 1e-12:
+                    terms.append((-self.Ly*1.0, 'RPHY', 1))
+                
+                if abs(+self.Ly*zrel) > 1e-12:
+                    terms.append((+self.Ly*zrel, 'RPKX', 2))
+                
                 eqn_count_y_u1 += 1
-                self.model.Equation(name='PBC_Y_U1_%06d' % eqn_count_y_u1, terms=terms)
+                self.model.Equation(name='PBC_Y_U1_%06d' % eqn_count_y_u1, terms=tuple(terms))
+            
             # Y-U2
             if PBC_Y_U2:
-                terms = (
+                terms = [
                     ( 1.0, setA, 2),
-                    (-1.0, setB, 2),
-                    (-self.Ly*1.0, 'RPHY', 2),
-                    (+self.Ly*zrel, 'RPKY', 1),
-                )
+                    (-1.0, setB, 2)
+                ]
+                
+                if abs(-self.Ly*1.0) > 1e-12:
+                    terms.append((-self.Ly*1.0, 'RPHY', 2))
+                
+                if abs(+self.Ly*zrel) > 1e-12:
+                    terms.append((+self.Ly*zrel, 'RPKY', 1))
+                
                 eqn_count_y_u2 += 1
-                self.model.Equation(name='PBC_Y_U2_%06d' % eqn_count_y_u2, terms=terms)
+                self.model.Equation(name='PBC_Y_U2_%06d' % eqn_count_y_u2, terms=tuple(terms))
+            
             # Y-U3
             if PBC_Y_U3:
-                terms = (
+                terms = [
                     ( 1.0, setA, 3),
-                    (-1.0, setB, 3),
-                    (-self.Ly*1.0, 'RPHY', 3),
-                    (-self.Ly*xrel, 'RPKX', 2),
-                )
+                    (-1.0, setB, 3)
+                ]
+                
+                if abs(-self.Ly*1.0) > 1e-12:
+                    terms.append((-self.Ly*1.0, 'RPHY', 3))
+                
+                if abs(-self.Ly*xrel) > 1e-12:
+                    terms.append((-self.Ly*xrel, 'RPKX', 2))
+                
                 eqn_count_y_u3 += 1
-                self.model.Equation(name='PBC_Y_U3_%06d' % eqn_count_y_u3, terms=terms)
+                self.model.Equation(name='PBC_Y_U3_%06d' % eqn_count_y_u3, terms=tuple(terms))
+        
         return {
             'RP_sets': {'RPHX': 'RPHX', 'RPHY': 'RPHY', 'RPKX': 'RPKX', 'RPKY': 'RPKY'},
             'counts': {
