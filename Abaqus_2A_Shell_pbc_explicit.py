@@ -370,27 +370,24 @@ class PBCContext(object):
         # Apply macro loads 
         self.apply_macro_BCs(step_name=step_name, H=H, K=K, amplitude=amplitude)
         
-        # --- tiny mass on RPs for Explicit packaging (no new def/method)
-        rp_sets = ('RPHX', 'RPHY', 'RPKX', 'RPKY')
-        rps = []
-        for sname in rp_sets:
-            if sname not in self.a.sets.keys():
-                raise RuntimeError("RP set '%s' not found. Make sure ensure_macro_rps_legacy() ran." % sname)
-            for rp in self.a.sets[sname].referencePoints:
-                rps.append(rp)
-        
-        if len(rps) == 0:
-            raise RuntimeError("No reference points found in RP sets.")
-        
-        set_name = 'RP_MASS_SET' 
-        if set_name not in self.a.sets.keys():
-            self.a.Set(name=set_name, referencePoints=tuple(rps))
-        
-        mass_name = 'MASS_RP_TINY'
-        try:
-            self.model.Mass(name=mass_name, region=self.a.sets[set_name], mass=1e-12)
-        except:
-            pass
+        # --- tiny mass on each RP set (Explicit packaging)
+        for sname in ('RPHX', 'RPHY', 'RPKX', 'RPKY'):
+            iname = 'Inertia_%s' % sname
+            if iname not in self.a.engineeringFeatures.inertias.keys():
+                self.a.engineeringFeatures.PointMassInertia(
+                    name=iname,
+                    region=self.a.sets[sname],
+                    mass=1e-12,
+                    alpha=0.0,
+                    composite=0.0
+                )
+            else:
+                self.a.engineeringFeatures.inertias[iname].setValues(
+                    region=self.a.sets[sname],
+                    mass=1e-12,
+                    alpha=0.0,
+                    composite=0.0
+                )
         
         return info
 
