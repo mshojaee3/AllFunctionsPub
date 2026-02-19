@@ -5,8 +5,7 @@ function [L, Results] = Mat_9A_FEM_2D_LocalizationTensorFromCorrectors_at_GaussP
 %
 % INPUTS
 %   params      : struct with (at least) fields:
-%                 params.Lx, params.Ly, params.mesh_size
-%                 (optional) params.PBC (default 'ON')
+%                 params.Lx, params.Ly, params.mesh_size)
 %   pyFile      : master Abaqus python file (e.g., 'Main2D.py')
 %   abaqus_cmd  : Abaqus command (e.g., 'abaqus')
 %   simDir      : working folder (e.g., 'WorkDir_Abaqus')
@@ -26,10 +25,8 @@ function [L, Results] = Mat_9A_FEM_2D_LocalizationTensorFromCorrectors_at_GaussP
 assert(isstruct(params), 'params must be a struct.');
 assert(isfield(params,'Lx') && isfield(params,'Ly') && isfield(params,'mesh_size'), ...
     'params must contain: Lx, Ly, mesh_size');
-
-if ~isfield(params,'PBC') || isempty(params.PBC)
-    params.PBC = 'ON';
-end
+    
+PBC_VALUE = 'ON';
 
 assert(ischar(pyFile) || isstring(pyFile), 'pyFile must be char/string.');
 pyFile = char(pyFile);
@@ -43,17 +40,6 @@ if nargin < 6 || isempty(doPlot),      doPlot = false; end
 Lx = params.Lx;
 Ly = params.Ly;
 mesh_size = params.mesh_size;
-
-% ----------------- optional skip if results exist -----------------
-if ~isempty(res_name) && isfile(res_name)
-    S = load(res_name);
-    if isfield(S,'L')
-        L = S.L;
-        if nargout > 1, Results = []; end
-        fprintf('Mat_9A: Found existing "%s". Loaded L and skipped RUC runs.\n', res_name);
-        return;
-    end
-end
 
 % ----------------- run 4 corrector jobs -----------------
 Jobs  = {'Uniaxialx', 'Uniaxialy', 'Shear12', 'Shear21'};
@@ -76,7 +62,7 @@ for k = 1:4
 
     % Build parameters for this RUC run
     parms = struct();
-    parms.PBC       = params.PBC;
+    parms.PBC       = PBC_VALUE;
     parms.H11       = H_val(1);
     parms.H12       = H_val(2);
     parms.H21       = H_val(3);
