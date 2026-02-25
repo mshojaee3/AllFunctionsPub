@@ -53,11 +53,11 @@ x = Xcache(caseNumber, :);
 % ---- apply scaling ----
 y = zeros(1,8);
 
-% H11, H22: 0.8 if >=0 else 0.6
+% H11, H22: 0.8 if >=0 else 0.4
 y(1) = x(1) * ( (x(1) >= 0)*0.8 + (x(1) < 0)*0.4 );  % H11
 y(2) = x(2) * ( (x(2) >= 0)*0.8 + (x(2) < 0)*0.4 );  % H22
 
-% H12: always 0.6
+% H12: always 0.4
 y(3) = 0.4 * x(3);
 
 % K11, K22, K12: 8 if >=0 else 6   (keep sign from x)
@@ -65,7 +65,7 @@ y(4) = x(4) * ( (x(4) >= 0)*8.0 + (x(4) < 0)*6.0 );  % K11
 y(5) = x(5) * ( (x(5) >= 0)*8.0 + (x(5) < 0)*6.0 );  % K22
 y(6) = x(6) * ( (x(6) >= 0)*8.0 + (x(6) < 0)*6.0 );  % K12
 
-% H31, H32: always 1.2
+% H31, H32: always 0.8
 y(7) = 0.8 * x(7);
 y(8) = 0.8 * x(8);
 
@@ -90,6 +90,7 @@ params.H32_in = y(8);
 % ---- numeric case name/tag ----
 caseName = sprintf("RS2_Elem6PerLayer_Case_256_%05d", caseNumber);
 end
+
 
 
 
