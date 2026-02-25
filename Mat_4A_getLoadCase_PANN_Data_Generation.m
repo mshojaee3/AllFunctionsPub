@@ -4,10 +4,10 @@ function [caseName, params] = Mat_4A_getLoadCase_PANN_Data_Generation(caseNumber
 %   [H11  H22  H12  K11  K22  K12  H31  H32]
 %
 % Scaling rules (keep sign from txt):
-%   H11,H22: multiply by 0.8 if value>=0, else by 0.6
-%   H12:     multiply by 0.6
+%   H11,H22: multiply by 0.8 if value>=0, else by 0.4
+%   H12:     multiply by 0.4
 %   K11,K22,K12: multiply by 8 if value>=0, else by 6 
-%   H31,H32: multiply by 1.2
+%   H31,H32: multiply by 0.8
 
 % ---- file path (same folder as this function) ----
 thisDir = fileparts(mfilename("fullpath"));
@@ -90,5 +90,6 @@ params.H32_in = y(8);
 % ---- numeric case name/tag ----
 caseName = sprintf("RS2_Elem6PerLayer_Case_256_%05d", caseNumber);
 end
+
 
 
