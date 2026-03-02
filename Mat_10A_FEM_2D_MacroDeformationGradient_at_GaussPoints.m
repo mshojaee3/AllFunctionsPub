@@ -12,7 +12,7 @@ function [coor, Fij, Labels_np, out] = Mat_10A_FEM_2D_MacroDeformationGradient_a
 %   Labels_np : [nNode x 1] nodal labels read from CSV
 %   out       : struct with extra internals (Hmacro, Grad_U1_gp, Grad_U2_gp, L, Results, idxLgp)
 
-
+res_name = sprintf('RUC_results.mat');
 run_ruc = true;
 
 if run_ruc
