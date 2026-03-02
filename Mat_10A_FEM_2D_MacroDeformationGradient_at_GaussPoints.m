@@ -1,5 +1,16 @@
-function [coor, Fij, nodeLabel, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
+function [coor, Fij, Labels_np, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
 
+%RUN_FULLFIELD_MACROF  Full-field Abaqus -> compute macro deformation gradient F at Gauss points
+%
+% Inputs
+%   parms       : struct (must include .load_case, .JOB or job_name, .NX,.NY,.Lx,.Ly,.mesh_size, etc.)
+%   RUC_Params  : struct (must include .run.simDir, .run.pyFile, .Lx,.Ly,.mesh_size, .BC_MODE, etc.)
+%
+% Outputs
+%   coor      : [nGP x 2] global Gauss point coords = [x_gp, y_gp]
+%   Fij       : cell {F11,F12,F21,F22}, each [nGP x 1]
+%   Labels_np : [nNode x 1] nodal labels read from CSV
+%   out       : struct with extra internals (Hmacro, Grad_U1_gp, Grad_U2_gp, L, Results, idxLgp)
 
 
 run_ruc = true;
@@ -113,7 +124,7 @@ y_gp = Grad_U1_gp(:,4);
 nGP  = size(Grad_U1_gp,1);
 idxLgp = zeros(nGP,1);
 missing = false(nGP,1);
-
+coor = [x_gp, y_gp];
 for i = 1:nGP
     k = keys_gp(i);
     if isKey(idxMap, k)
@@ -225,5 +236,18 @@ for g = 1:nGP
     Hmacro22(g) = theta(10);
 end
 
-Fij = {1+Hmacro11, Hmacro12,...
-         Hmacro21, 1+Hmacro22};
+% -----------------------------
+% 7) Build F = I + Hmacro
+% -----------------------------
+F11 = 1 + Hmacro11;
+F12 = Hmacro12;
+F21 = Hmacro21;
+F22 = 1 + Hmacro22;
+
+Fij = {F11, F12, F21, F22};
+
+
+% Optional extra outputs
+out = struct();
+out.test = 1;
+
