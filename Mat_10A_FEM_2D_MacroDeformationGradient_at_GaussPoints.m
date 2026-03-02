@@ -17,6 +17,9 @@ run_ruc = true;
 simDir = parms.simDir;
 master_py=parms.master_py;
 abaqus_cmd=parms.abaqus_cmd;
+Lx_ruc    = RUC_Params.Lx;
+Ly_ruc    = RUC_Params.Ly;
+mesh_size = RUC_Params.mesh_size;
 
 if run_ruc
 
