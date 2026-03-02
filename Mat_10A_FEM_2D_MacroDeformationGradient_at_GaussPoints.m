@@ -43,10 +43,6 @@ end
 
 AllFunctions.Mat_5A_safeCleanRunDir(simDir);
 
-
-parms = struct();
-
-
 % 2.1 Generate Python Script using YOUR function
 out_py_name = [parms.JOB, '_run.py'];
 full_py_path = fullfile(simDir, out_py_name);
