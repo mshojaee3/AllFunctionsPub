@@ -63,8 +63,8 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-csv_node  = fullfile(simDir, [, '_NodalData.csv']);
-csv_conn  = fullfile(simDir, [, '_Connectivity.csv']);
+csv_node  = fullfile(simDir, sprintf('%s_NodalData.csv', parms.JOB));
+csv_conn  = fullfile(simDir, sprintf('%s_Connectivity.csv', parms.JOB));
 nodal_table = readtable(csv_node);
 
 raw_conn = readmatrix(csv_conn, 'NumHeaderLines', 1);
