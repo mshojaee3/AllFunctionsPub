@@ -14,6 +14,7 @@ function [coor, Fij, Labels_np, out] = Mat_10A_FEM_2D_MacroDeformationGradient_a
 
 res_name = sprintf('RUC_results.mat');
 run_ruc = true;
+simDir = parms.simDir;
 
 if run_ruc
 
