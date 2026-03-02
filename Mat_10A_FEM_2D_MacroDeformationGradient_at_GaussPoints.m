@@ -1,4 +1,4 @@
-function [coor, Fij, Labels_np, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
+function [coor, Fij, Labels_np, H_abaqus, H_pred, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
 
 %RUN_FULLFIELD_MACROF  Full-field Abaqus -> compute macro deformation gradient F at Gauss points
 %
@@ -248,6 +248,8 @@ F22 = 1 + Hmacro22;
 
 Fij = {F11, F12, F21, F22};
 
+H_abaqus = {H11_gp_ab, H12_gp_ab, H21_gp_ab, H22_gp_ab};
+H_pred   = {Hmacro11,  Hmacro12,  Hmacro21,  Hmacro22};
 
 % Optional extra outputs
 out = struct();
