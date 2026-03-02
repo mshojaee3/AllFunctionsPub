@@ -17,7 +17,7 @@ run_ruc = true;
 simDir = parms.simDir;
 master_py=parms.master_py;
 abaqus_cmd=parms.abaqus_cmd;
-job_name_FULL=parms.job_name_FULL;
+
 if run_ruc
 
 
@@ -48,7 +48,7 @@ parms = struct();
 
 
 % 2.1 Generate Python Script using YOUR function
-out_py_name = [job_name_FULL, '_run.py'];
+out_py_name = [parms.JOB, '_run.py'];
 full_py_path = fullfile(simDir, out_py_name);
 
 fprintf('>> Generating script using AllFunctions.Mat_7A_updatePyFromParams...\n');
