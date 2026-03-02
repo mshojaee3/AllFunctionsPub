@@ -3,7 +3,7 @@ function [coor, Fij, Labels_np, out] = Mat_10A_FEM_2D_MacroDeformationGradient_a
 %RUN_FULLFIELD_MACROF  Full-field Abaqus -> compute macro deformation gradient F at Gauss points
 %
 % Inputs
-%   parms       : struct (must include .load_case, .JOB or job_name, .NX,.NY,.Lx,.Ly,.mesh_size, etc.)
+%   parms       : struct (must include .load_case, .JOB or , .NX,.NY,.Lx,.Ly,.mesh_size, etc.)
 %   RUC_Params  : struct (must include .run.simDir, .run.pyFile, .Lx,.Ly,.mesh_size, .BC_MODE, etc.)
 %
 % Outputs
@@ -17,6 +17,7 @@ run_ruc = true;
 simDir = parms.simDir;
 master_py=parms.master_py;
 abaqus_cmd=parms.abaqus_cmd;
+job_name_FULL=parms.job_name_FULL;
 if run_ruc
 
 
@@ -47,7 +48,7 @@ parms = struct();
 
 
 % 2.1 Generate Python Script using YOUR function
-out_py_name = [job_name, '_run.py'];
+out_py_name = [job_name_FULL, '_run.py'];
 full_py_path = fullfile(simDir, out_py_name);
 
 fprintf('>> Generating script using AllFunctions.Mat_7A_updatePyFromParams...\n');
@@ -66,8 +67,8 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-csv_node  = fullfile(simDir, [job_name, '_NodalData.csv']);
-csv_conn  = fullfile(simDir, [job_name, '_Connectivity.csv']);
+csv_node  = fullfile(simDir, [, '_NodalData.csv']);
+csv_conn  = fullfile(simDir, [, '_Connectivity.csv']);
 nodal_table = readtable(csv_node);
 
 raw_conn = readmatrix(csv_conn, 'NumHeaderLines', 1);
