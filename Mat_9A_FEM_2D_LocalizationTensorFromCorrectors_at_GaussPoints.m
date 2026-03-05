@@ -123,8 +123,16 @@ for k = 1:4
     U1 = data.U_U1; U2 = data.U_U2;
     Node_Labels = data.Node_Label;
 
-    U1_Aff = H_val(1)*Y1 + H_val(2)*Y2;
-    U2_Aff = H_val(3)*Y1 + H_val(4)*Y2;
+    % --- frame scaling: H at the exported frame ---
+    alpha = 1.0;
+    if isfield(params,'fi') && isfield(params,'nFrames') && params.nFrames > 1
+        alpha = params.fi / (params.nFrames - 1);   % fi = 0..nFrames-1
+    end
+
+    Hf = alpha * H_val;   % H actually applied at this frame
+
+    U1_Aff = Hf(1)*Y1 + Hf(2)*Y2;
+    U2_Aff = Hf(3)*Y1 + Hf(4)*Y2;
 
     denom = max(abs(H_val));
     Xi1 = (U1 - U1_Aff) / denom;
