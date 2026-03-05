@@ -48,6 +48,7 @@ Lx = params.Lx;
 Ly = params.Ly;
 mesh_size = params.mesh_size;
 
+
 % ----------------- run 4 corrector jobs -----------------
 Jobs  = {'Uniaxialx', 'Uniaxialy', 'Shear12', 'Shear21'};
 Loads = [0.01, 0,    0,    0; ...
@@ -80,6 +81,10 @@ for k = 1:4
     parms.Lx        = Lx;
     parms.Ly        = Ly;
     parms.mesh_size = mesh_size;
+    if isfield(params,'fi')
+        parms.fi = params.fi;
+    else; parms.fi = 0;
+    end
 
     % Generate python script
     out_py_name  = [job_name, '_run.py'];
