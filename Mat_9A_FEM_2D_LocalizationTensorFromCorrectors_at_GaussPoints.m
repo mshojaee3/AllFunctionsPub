@@ -134,7 +134,7 @@ for k = 1:4
     U1_Aff = Hf(1)*Y1 + Hf(2)*Y2;
     U2_Aff = Hf(3)*Y1 + Hf(4)*Y2;
 
-    denom = max(abs(H_val));
+    denom = max(abs(Hf));
     Xi1 = (U1 - U1_Aff) / denom;
     Xi2 = (U2 - U2_Aff) / denom;
 
