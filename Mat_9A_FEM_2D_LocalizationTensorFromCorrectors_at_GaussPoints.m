@@ -51,7 +51,13 @@ mesh_size = params.mesh_size;
 
 % ----------------- run 4 corrector jobs -----------------
 Jobs  = {'Uniaxialx', 'Uniaxialy', 'Shear12', 'Shear21'};
-Hbasis = 0.01;
+
+if isfield(params,'Hbasis') && ~isempty(params.Hbasis)
+    Hbasis = params.Hbasis;
+else
+    Hbasis = 0.01;
+end
+
 Loads = [Hbasis, 0,      0,      0; ...
          0,      0,      0,  Hbasis; ...
          0,  Hbasis,     0,      0; ...
