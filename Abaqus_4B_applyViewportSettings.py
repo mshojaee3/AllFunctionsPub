@@ -10,6 +10,7 @@ SHOW_LEGEND = True        # True/False
 KEEP_CURRENT_VIEW = True
 
 # --- Legend formatting ---
+LEGEND_NUMBER_FORMAT = 'SCIENTIFIC'   # 'SCIENTIFIC' or 'FIXED'
 LEGEND_DECIMAL_PLACES = 4     # digits after decimal in legend (e.g., 3, 5, 8)
 LEGEND_FONT_SIZE_PT   = 24    # legend font size in points (240 = 24 pt in X11 font string)
 USE_VERDANA           = True  # try Verdana first; fallback to Helvetica if unavailable
@@ -95,9 +96,18 @@ vp.viewportAnnotationOptions.setValues(
 )
 
 # --- Legend formatting ---
+legend_fmt = LEGEND_NUMBER_FORMAT.upper()
+if legend_fmt == 'SCIENTIFIC':
+    _legend_number_format = SCIENTIFIC
+elif legend_fmt == 'FIXED':
+    _legend_number_format = FIXED
+else:
+    raise ValueError("LEGEND_NUMBER_FORMAT must be 'SCIENTIFIC' or 'FIXED'")
+
+# --- Legend formatting ---
 vp.viewportAnnotationOptions.setValues(
     legendBox=OFF,
-    legendNumberFormat=FIXED,
+    legendNumberFormat=_legend_number_format,
     legendDecimalPlaces=LEGEND_DECIMAL_PLACES
 )
 
