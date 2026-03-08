@@ -17,7 +17,7 @@ USE_VERDANA           = True  # try Verdana first; fallback to Helvetica if unav
 
 # --- Triad position ---
 TRIAD_POS_X = 19              # triad position X (pixel-like viewport coords)
-TRIAD_POS_Y = 25              # triad position Y (pixel-like viewport coords)
+TRIAD_POS_Y = 21              # triad position Y (pixel-like viewport coords)
 # ============================================================
 
 
