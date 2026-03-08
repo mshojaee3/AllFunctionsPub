@@ -36,7 +36,7 @@ ZOOM_FACTOR   = 1.0      # 1.0 = no extra zoom (use >1 to zoom in after fit)
 EXPORT_TIFFS    = True
 OUT_DIR        = r'c:\temp\abaqus_tiff'
 FILE_PREFIX    = 'result'
-TIFF_SIZE       = (1920, 1080)     # (width, height)
+TIFF_SIZE       = (4096, 2304)     # (width, height)
 FIT_EACH_IMAGE = True
 
 # What to export (edit this list only)
