@@ -11,7 +11,7 @@ KEEP_CURRENT_VIEW = True
 
 # --- Legend formatting ---
 LEGEND_NUMBER_FORMAT = 'SCIENTIFIC'   # 'SCIENTIFIC' or 'FIXED'
-LEGEND_DECIMAL_PLACES = 4     # digits after decimal in legend (e.g., 3, 5, 8)
+LEGEND_DECIMAL_PLACES = 2     # digits after decimal in legend (e.g., 3, 5, 8)
 LEGEND_FONT_SIZE_PT   = 24    # legend font size in points (240 = 24 pt in X11 font string)
 USE_VERDANA           = True  # try Verdana first; fallback to Helvetica if unavailable
 # ============================================================
