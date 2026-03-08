@@ -18,7 +18,7 @@ USE_VERDANA           = True  # try Verdana first; fallback to Helvetica if unav
 
 # --- Triad position ---
 TRIAD_POS_X = 19              # triad position X (pixel-like viewport coords)
-TRIAD_POS_Y = 21              # triad position Y (pixel-like viewport coords)
+TRIAD_POS_Y = 17              # triad position Y (pixel-like viewport coords)
 # ============================================================
 
 
@@ -33,10 +33,10 @@ ZOOM_FACTOR   = 1.0      # 1.0 = no extra zoom (use >1 to zoom in after fit)
 # ============================================================
 # SIMPLE EXPORT BLOCK (paste at end)
 # ============================================================
-EXPORT_PNGS    = True
-OUT_DIR        = r'c:\temp\abaqus_png'
+EXPORT_TIFFS    = True
+OUT_DIR        = r'c:\temp\abaqus_tiff'
 FILE_PREFIX    = 'result'
-PNG_SIZE       = (1920, 1080)     # (width, height)
+TIFF_SIZE       = (1920, 1080)     # (width, height)
 FIT_EACH_IMAGE = True
 
 # What to export (edit this list only)
@@ -175,37 +175,133 @@ def _set_primary_from_tag(tag):
     except:
         return False
 
-def _export_png(fullpath_no_ext):
+def _export_tiff(fullpath_no_ext):
     try:
         if FIT_EACH_IMAGE and not KEEP_CURRENT_VIEW:
             vp.view.fitView()
         session.printOptions.setValues(rendition=COLOR)
-        session.pngOptions.setValues(imageSize=PNG_SIZE)
+        session.tiffOptions.setValues(imageSize=TIFF_SIZE)
         session.printToFile(
             fileName=fullpath_no_ext,
-            format=PNG,
+            format=TIFF,
             canvasObjects=(vp,)
         )
         # --- auto-crop background (requires Pillow) ---
         try:
             from PIL import Image, ImageChops
-            png_path = fullpath_no_ext + '.png'
-            im = Image.open(png_path).convert('RGB')
+            tiff_path = fullpath_no_ext + '.tiff'
+            im = Image.open(tiff_path).convert('RGB')
             bg = Image.new('RGB', im.size, (255, 255, 255))  # white background
             diff = ImageChops.difference(im, bg)
             bbox = diff.getbbox()
             if bbox:
-                im.crop(bbox).save(png_path)
+                im.crop(bbox).save(tiff_path)
         except:
             pass
         return True
     except:
         return False
 
-if EXPORT_PNGS:
+if EXPORT_TIFFS:
     _ensure_dir(OUT_DIR)
     for tag in EXPORT_LIST:
         if _set_primary_from_tag(tag):
             fname = os.path.join(OUT_DIR, '%s_%s' % (FILE_PREFIX, tag))
-            _export_png(fname)
+            _export_tiff(fname)
 # ============================================================
+
+
+
+from pathlib import Path
+from PIL import Image
+
+INPUT_DIR = Path(r"C:\temp\abaqus_tiff")
+OUTPUT_DIR = INPUT_DIR / "cropped"
+EXTENSIONS = {".tif", ".tiff"}
+
+TOL = 15
+
+
+def is_bg(pixel, bg, tol):
+    return (
+        abs(int(pixel[0]) - int(bg[0])) <= tol and
+        abs(int(pixel[1]) - int(bg[1])) <= tol and
+        abs(int(pixel[2]) - int(bg[2])) <= tol
+    )
+
+
+def crop_background(img, tol=TOL):
+    img = img.convert("RGB")
+    px = img.load()
+    w, h = img.size
+    bg = px[0, 0]
+    left = 0
+    while left < w:
+        found = False
+        for y in range(h):
+            if not is_bg(px[left, y], bg, tol):
+                found = True
+                break
+        if found:
+            break
+        left += 1
+    right = w - 1
+    while right >= 0:
+        found = False
+        for y in range(h):
+            if not is_bg(px[right, y], bg, tol):
+                found = True
+                break
+        if found:
+            break
+        right -= 1
+    top = 0
+    while top < h:
+        found = False
+        for x in range(w):
+            if not is_bg(px[x, top], bg, tol):
+                found = True
+                break
+        if found:
+            break
+        top += 1
+    bottom = h - 1
+    while bottom >= 0:
+        found = False
+        for x in range(w):
+            if not is_bg(px[x, bottom], bg, tol):
+                found = True
+                break
+        if found:
+            break
+        bottom -= 1
+    if left < right and top < bottom:
+        return img.crop((left, top, right + 1, bottom + 1))
+    return img
+
+
+def main():
+    if not INPUT_DIR.exists():
+        raise FileNotFoundError(f"Input folder not found: {INPUT_DIR}")
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    files = [f for f in INPUT_DIR.iterdir() if f.suffix.lower() in EXTENSIONS]
+    if not files:
+        print("No TIFF files found.")
+        return
+    for f in files:
+        try:
+            img = Image.open(f)
+            cropped = crop_background(img, tol=TOL)
+            out_path = OUTPUT_DIR / f.name
+            cropped.save(out_path)
+            print(f"Done: {f.name}")
+        except Exception as e:
+            print(f"Failed: {f.name} -> {e}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
