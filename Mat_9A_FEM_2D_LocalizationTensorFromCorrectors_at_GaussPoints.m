@@ -77,7 +77,7 @@ for k = 1:4
 
     % Build parameters for this RUC run
     parms = struct();
-    parms.PBC       = PBC_VALUE;
+    parms.BC_MODE = 'PBC';
     parms.H11       = H_val(1);
     parms.H12       = H_val(2);
     parms.H21       = H_val(3);
