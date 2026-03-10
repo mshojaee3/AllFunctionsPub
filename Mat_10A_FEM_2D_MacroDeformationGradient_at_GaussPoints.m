@@ -51,6 +51,8 @@ out_py_name = [parms.JOB, '_run.py'];
 full_py_path = fullfile(simDir, out_py_name);
 
 fprintf('>> Generating script using AllFunctions.Mat_7A_updatePyFromParams...\n');
+
+parms.BC_MODE = 'LOAD';
 AllFunctions.Mat_7A_updatePyFromParams(parms, master_py, full_py_path);
 
 
