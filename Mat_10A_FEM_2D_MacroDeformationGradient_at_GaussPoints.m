@@ -82,6 +82,21 @@ Connectivity = raw_conn;
 pattern = sprintf('%s_NodalData_%s_f*.csv', parms.JOB, 'Step-1');
 frameFiles = dir(fullfile(simDir, pattern));
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Load strain energy (ALLSE) for later saving
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+allse_csv = fullfile(simDir, sprintf('%s_ALLSE.csv', parms.JOB));
+
+% Read numeric data: skip 3 header lines
+raw_allse = readmatrix(allse_csv, 'NumHeaderLines', 3);
+
+% Column 1 = Time
+% Column 2 = ALLSE
+Time_ALLSE = raw_allse(:,1);
+ALLSE = raw_allse(:,2);
+
+
+
 if isempty(frameFiles)
     error('No framewise nodal CSV files found with pattern: %s', pattern);
 end
