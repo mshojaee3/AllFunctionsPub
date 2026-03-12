@@ -88,6 +88,7 @@ for k = 1:4
     parms.Lx        = Lx;
     parms.Ly        = Ly;
     parms.mesh_size = mesh_size;
+    parms.export_frames = params.export_frames;
     if isfield(params,'fi')
         parms.fi = params.fi;
     else; parms.fi = 0;
