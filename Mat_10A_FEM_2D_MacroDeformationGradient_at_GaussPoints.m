@@ -274,7 +274,7 @@ for fi = 1:nFrames
 
     safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
     Tframe = table(coor(:,1),coor(:,2),F11,F12,F21,F22,'VariableNames', {'X','Y','F11','F12','F21','F22'});
-    csv_name = sprintf('%s_%s_Fij_f%04d.csv', safeLoadCase, fi-1);
+    csv_name = sprintf('%s_Fij_f%04d.csv', safeLoadCase, fi-1);
     csv_path = fullfile(fijDir, csv_name);
     writetable(Tframe, csv_path);
 
