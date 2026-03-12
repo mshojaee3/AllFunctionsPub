@@ -308,6 +308,36 @@ for fi = 1:nFrames
 
 end
 
+allse_csv = fullfile(simDir, sprintf('%s_ALLSE.csv', parms.JOB));
+
+if isfile(allse_csv)
+    % Read numeric data: skip 3 header lines
+    raw_allse = readmatrix(allse_csv, 'NumHeaderLines', 3);
+    
+    % Column 1 = Time
+    % Column 2 = ALLSE
+    Time_ALLSE = raw_allse(:,1);
+    ALLSE = raw_allse(:,2);
+    
+    % 1. Create a clean MATLAB table
+    T_energy = table(Time_ALLSE, ALLSE, 'VariableNames', {'Time', 'ALLSE'});
+    
+    % 2. Generate a safe filename based on the load case (e.g., 'ParabolicBending')
+    safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
+    clean_allse_csv = fullfile(fijDir, sprintf('%s_ALLSE.csv', safeLoadCase));
+    
+    % 3. Write the clean table to the Fij directory
+    writetable(T_energy, clean_allse_csv);
+    
+    fprintf('   -> Clean ALLSE data saved to: %s\n', clean_allse_csv);
+    
+    % (Optional) Store it in the 'out' struct if you want it in memory right now
+    out.ALLSE_Time = Time_ALLSE;
+    out.ALLSE = ALLSE;
+else
+    warning('Raw ALLSE file not found: %s. Check if Abaqus exported it.', allse_csv);
+end
+
 out = struct();
 out.nFrames = nFrames;
 out.frameFiles = {frameFiles.name};
