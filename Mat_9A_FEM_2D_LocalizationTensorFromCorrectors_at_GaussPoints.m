@@ -110,28 +110,16 @@ for k = 1:4
     end
 
     % Load CSV outputs
+    csv_path  = fullfile(simDir, sprintf('%s_NodalData.csv', job_name));
     conn_path = fullfile(simDir, sprintf('%s_Connectivity.csv', job_name));
 
-    % First look for multi-frame exported nodal files
-    pattern = sprintf('%s_NodalData_%s_f*.csv', job_name, 'Step-1');
-    frameFiles = dir(fullfile(simDir, pattern));
-
-    if ~isempty(frameFiles)
-        % sort and take the last exported frame file
-        [~, idxSort] = sort({frameFiles.name});
-        frameFiles = frameFiles(idxSort);
-        csv_path = fullfile(simDir, frameFiles(end).name);
-    else
-        % fallback for single-file export
-        csv_path = fullfile(simDir, sprintf('%s_NodalData.csv', job_name));
-    end
     if ~isfile(csv_path)
-        error('RUC simulation failed for %s. Missing nodal file: %s', job_name, csv_path);
+        error('RUC simulation failed for %s. Missing file: %s', job_name, csv_path);
     end
     if ~isfile(conn_path)
-        error('RUC simulation failed for %s. Missing connectivity file: %s', job_name, conn_path);
+        error('RUC simulation failed for %s. Missing file: %s', job_name, conn_path);
     end
-    fprintf('>> Using nodal CSV for localization: %s\n', csv_path);
+
     data     = readtable(csv_path);
     raw_conn = readmatrix(conn_path, 'NumHeaderLines', 1);
     Connectivity = raw_conn(:, :);
