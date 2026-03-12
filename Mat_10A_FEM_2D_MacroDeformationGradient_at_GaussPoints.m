@@ -22,6 +22,11 @@ Ly_ruc    = RUC_Params.Ly;
 mesh_size = RUC_Params.mesh_size;
 RUC_Params.export_frames = 'last';
 
+fijDir = fullfile(parms.rootDir, 'Fij');
+if ~exist(fijDir, 'dir')
+    mkdir(fijDir);
+end
+
 if run_ruc
 
 
@@ -266,6 +271,12 @@ for fi = 1:nFrames
     F12 = Hmacro12;
     F21 = Hmacro21;
     F22 = 1 + Hmacro22;
+
+    safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
+    Tframe = table(coor(:,1),coor(:,2),F11,F12,F21,F22,'VariableNames', {'X','Y','F11','F12','F21','F22'});
+    csv_name = sprintf('%s_%s_Fij_f%04d.csv', safeLoadCase, fi-1);
+    csv_path = fullfile(fijDir, csv_name);
+    writetable(Tframe, csv_path);
 
     Frames(fi).frame_id  = fi - 1;
     Frames(fi).file_name = frameFiles(fi).name;
