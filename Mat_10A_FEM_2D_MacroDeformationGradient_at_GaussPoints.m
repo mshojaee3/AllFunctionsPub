@@ -1,4 +1,4 @@
-function [coor, Fij, Labels_np, H_abaqus, H_pred, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
+function [Frames, out] = Mat_10A_FEM_2D_MacroDeformationGradient_at_GaussPoints(parms, RUC_Params)
 
 %RUN_FULLFIELD_MACROF  Full-field Abaqus -> compute macro deformation gradient F at Gauss points
 %
@@ -20,6 +20,7 @@ abaqus_cmd=parms.abaqus_cmd;
 Lx_ruc    = RUC_Params.Lx;
 Ly_ruc    = RUC_Params.Ly;
 mesh_size = RUC_Params.mesh_size;
+RUC_Params.export_frames = 'last';
 
 if run_ruc
 
@@ -53,6 +54,7 @@ full_py_path = fullfile(simDir, out_py_name);
 fprintf('>> Generating script using AllFunctions.Mat_7A_updatePyFromParams...\n');
 
 parms.BC_MODE = 'LOAD';
+parms.export_frames = 'all';
 AllFunctions.Mat_7A_updatePyFromParams(parms, master_py, full_py_path);
 
 
