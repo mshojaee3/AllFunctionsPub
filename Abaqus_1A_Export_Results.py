@@ -545,7 +545,54 @@ class Export_Abaqus2CSV(object):
             print(" -> ALLSE not found for step '%s' (header written only)" % self.step_name)
         else:
             print(" -> ALLSE:", filename, "(%d rows)" % len(rows))
-    
+
+
+    # -------------------------
+    # Export: Total Reaction Forces
+    # -------------------------
+    def export_RF_summary(self, filename=None, frames='last'):
+        if filename is None: filename = self.out_prefix + '_RF.csv'
+        step, frame_indices = self._get_step_and_frame_indices(frames=frames)
+        
+        ra = self.odb.rootAssembly
+        # Helper to safely grab sets (handles pure shear _PS naming quirk)
+        def get_nset(name):
+            keys = list(ra.nodeSets.keys())
+            if name in keys: return ra.nodeSets[name]
+            if name+'_PS' in keys: return ra.nodeSets[name+'_PS']
+            return None
+
+        setL = get_nset('LEFT')
+        setR = get_nset('RIGHT')
+        setB = get_nset('BOTTOM')
+        setT = get_nset('TOP')
+
+        with self.open_csv_safe(filename) as f:
+            w = csv.writer(f)
+            w.writerow(['Frame', 'Left_Fx', 'Left_Fy', 'Right_Fx', 'Right_Fy', 'Bottom_Fx', 'Bottom_Fy', 'Top_Fx', 'Top_Fy'])
+
+            for fi in frame_indices:
+                frame = step.frames[fi]
+                rf_field = self._safe_get_field(frame, 'RF')
+
+                def sum_rf(nset):
+                    if nset is None or rf_field is None: return 0.0, 0.0
+                    sub = self._subset_safe(rf_field, region=nset)
+                    if sub is None or len(sub.values) == 0: return 0.0, 0.0
+                    fx, fy = 0.0, 0.0
+                    for v in sub.values:
+                        fx += v.data[0]
+                        fy += v.data[1]
+                    return fx, fy
+
+                lx, ly = sum_rf(setL)
+                rx, ry = sum_rf(setR)
+                bx, by = sum_rf(setB)
+                tx, ty = sum_rf(setT)
+
+                w.writerow([fi, lx, ly, rx, ry, bx, by, tx, ty])
+                
+        print(' -> Reaction Force Summary:', filename)
     # -------------------------
     # High-level export
     # -------------------------
@@ -584,8 +631,8 @@ class Export_Abaqus2CSV(object):
     # High-level export
     # -------------------------
     def export(self, connectivity=True, nodal=True, gauss=True,
-               export_X=True, export_U=True, export_E=False, export_LE=True, export_S=False,
-               export_gauss_coords=True,
+               export_X=True, export_U=True, export_E=False, export_LE=True, export_S=False, export_RF=False,
+               export_gauss_coords=True, 
                nodal_tensor_position='NODAL',
                frames='last',                 # <-- NEW: 'last' or 'all' or [0,5,9]
                suffix_with_step_frame=True,
@@ -593,12 +640,15 @@ class Export_Abaqus2CSV(object):
         try:
             self.open()
 
-            # Connectivity once
+            # Independent files generated once per run
             if connectivity:
                 self.export_connectivity()
             
             if ALLSE:
                 self.export_ALLSE(filename=self.out_prefix + '_ALLSE.csv')
+                
+            if export_RF:                                                                 # <--- ADD THIS
+                self.export_RF_summary(filename=self.out_prefix + '_RF.csv', frames=frames) # <--- ADD THIS
             
             # Decide which frames to export
             step, frame_indices = self._get_step_and_frame_indices(frames=frames)
