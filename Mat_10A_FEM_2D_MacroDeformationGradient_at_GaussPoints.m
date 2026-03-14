@@ -357,11 +357,12 @@ save(fullfile(simDir, sprintf('%s_Fij_allFrames.mat', parms.JOB)), 'Frames', 'ou
     %% --- 8.1 Process and Save ALLSE ---
     allse_csv = fullfile(simDir, sprintf('%s_ALLSE.csv', parms.JOB));
     if isfile(allse_csv)
-        % Read numeric data: skip 3 header lines
-        raw_allse = readmatrix(allse_csv, 'NumHeaderLines', 3);
+        % USE READTABLE INSTEAD OF READMATRIX to safely handle the text column
+        raw_allse = readtable(allse_csv);
         
-        Time_ALLSE = raw_allse(:,1);
-        ALLSE = raw_allse(:,2);
+        % Extract directly by column name
+        Time_ALLSE = raw_allse.Time;
+        ALLSE = raw_allse.ALLSE;
         
         T_energy = table(Time_ALLSE, ALLSE, 'VariableNames', {'Time', 'ALLSE'});
         clean_allse_csv = fullfile(fijDir, sprintf('%s_ALLSE.csv', safeLoadCase));
