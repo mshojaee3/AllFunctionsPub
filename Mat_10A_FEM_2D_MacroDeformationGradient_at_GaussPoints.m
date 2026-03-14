@@ -344,3 +344,53 @@ out.frameFiles = {frameFiles.name};
 
 save(fullfile(simDir, sprintf('%s_Fij_allFrames.mat', parms.JOB)), 'Frames', 'out', '-v7.3');
 
+% =========================================================================
+    % 8. EXPORT ALLSE AND REACTION FORCES TO Fij FOLDER
+    % =========================================================================
+    % Initialize the 'out' struct first so we don't accidentally overwrite it
+    out = struct();
+    out.nFrames = nFrames;
+    out.frameFiles = {frameFiles.name};
+    safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
+
+    %% --- 8.1 Process and Save ALLSE ---
+    allse_csv = fullfile(simDir, sprintf('%s_ALLSE.csv', parms.JOB));
+    if isfile(allse_csv)
+        % Read numeric data: skip 3 header lines
+        raw_allse = readmatrix(allse_csv, 'NumHeaderLines', 3);
+        
+        Time_ALLSE = raw_allse(:,1);
+        ALLSE = raw_allse(:,2);
+        
+        T_energy = table(Time_ALLSE, ALLSE, 'VariableNames', {'Time', 'ALLSE'});
+        clean_allse_csv = fullfile(fijDir, sprintf('%s_ALLSE.csv', safeLoadCase));
+        writetable(T_energy, clean_allse_csv);
+        
+        fprintf('   -> Clean ALLSE data saved to: %s\n', clean_allse_csv);
+        
+        out.ALLSE_Time = Time_ALLSE;
+        out.ALLSE = ALLSE;
+    else
+        warning('Raw ALLSE file not found: %s. Check if Abaqus exported it.', allse_csv);
+    end
+
+    %% --- 8.2 Process and Save Reaction Forces (RF) ---
+    rf_csv = fullfile(simDir, sprintf('%s_RF.csv', parms.JOB));
+    if isfile(rf_csv)
+        % The Python script already writes headers (Frame, Left_Fx, etc.), 
+        % so we can safely read it as a table and write it straight to Fij.
+        T_rf = readtable(rf_csv);
+        
+        clean_rf_csv = fullfile(fijDir, sprintf('%s_RF.csv', safeLoadCase));
+        writetable(T_rf, clean_rf_csv);
+        
+        fprintf('   -> Clean RF data saved to: %s\n', clean_rf_csv);
+        
+        out.RF = T_rf;
+    else
+        warning('Raw RF file not found: %s. Check if export_RF=True is in Python.', rf_csv);
+    end
+
+    % Finally, save the MATLAB checkpoint
+    save(fullfile(simDir, sprintf('%s_Fij_allFrames.mat', parms.JOB)), 'Frames', 'out', '-v7.3');
+end
