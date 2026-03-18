@@ -1,75 +1,34 @@
-function Out = Build_2D_IGA_Model(Nu_x, p)
+function Out = Mat_12A_Build_2D_IGA_Model_and_Derivatives(Nu_x, p)
 % =========================================================================
-% BUILD_2D_IGA_MODEL
+% BUILD_1D_IGA_DERIVATIVES
 % =========================================================================
-% One-file, one-output IGA utility for 2D basis construction.
-%
-% USAGE:
-%   Out = Build_2D_IGA_Model()
-%   Out = Build_2D_IGA_Model(Nu_x)
-%   Out = Build_2D_IGA_Model(Nu_x, p)
-%
-% INPUT:
-%   Nu_x : Number of elements in the xi-direction
-%          Default = 8
-%
-%   p    : B-spline degree in the xi-direction
-%          Default = 5
-%
-% INPUT RULES:
-%   - If no input is given, defaults are used:
-%         Nu_x = 8, p = 5
-%   - If one input is given, it is taken as:
-%         Nu_x
-%     and the default degree is used:
-%         p = 5
-%   - If two inputs are given, they are taken as:
-%         Nu_x, p
-%
-% ASSUMPTIONS:
-%   Nu_y = Nu_x
-%   q    = p
-%
-% OUTPUT:
-%   Out.IGA_Points   : Knot vectors, control points, Gauss points,
-%                      and parametric data
-%   Out.IGA_parm     : Stored input parameters (Nu_x, Nu_y, p, q)
-%   Out.N_last       : Degree-p basis-function values
-%   Out.d1N_values   : First derivatives of basis functions
-%   Out.d2N_values   : Second derivatives of basis functions
-%   Out.d3N_values   : Third derivatives of basis functions
+% Builds 1D IGA basis functions and their derivatives at Gauss points
+% in the x-direction only.
 % =========================================================================
-    %% --------------------------------------------------------------------
-    % 1) Read input
-    % ---------------------------------------------------------------------
+
+    %% 1) Read input
     if nargin == 0
         Nu_x = 6;
         p    = 5;
     elseif nargin == 1
         if isempty(Nu_x)
-            Nu_x = 8;
+            Nu_x = 6;
         end
         p = 5;
     elseif nargin == 2
         if isempty(Nu_x)
-            Nu_x = 8;
+            Nu_x = 6;
         end
         if isempty(p)
             p = 5;
         end
     else
-        error('Use Build_2D_IGA_Model(), Build_2D_IGA_Model(Nu_x), or Build_2D_IGA_Model(Nu_x,p).');
+        error('Use Mat_12A_Build_2D_IGA_Model_and_Derivatives(), Mat_12A_Build_2D_IGA_Model_and_Derivatives(Nu_x), or Mat_12A_Build_2D_IGA_Model_and_Derivatives(Nu_x,p).');
     end
 
-    Nu_y = Nu_x;
-    q    = p;
+    epsilon = 1e-12;
 
-    desired_values = linspace(0,1,Nu_x*(p+1))';
-    epsilon = 1e-8;
-
-    %% --------------------------------------------------------------------
-    % 2) Gauss points and weights on [-1,1]
-    % ---------------------------------------------------------------------
+    %% 2) Gauss points and weights on [-1,1]
     n_degree_gp = p + 1;
 
     if n_degree_gp == 1
@@ -85,15 +44,10 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         wgp0 = 2*(V(1,:)').^2;
     end
 
-    %% --------------------------------------------------------------------
-    % 3) Parametric element nodes
-    % ---------------------------------------------------------------------
-    xi_Node  = linspace(0, 1, Nu_x + 1);
-    eta_Node = linspace(0, 1, Nu_y + 1);
+    %% 3) Parametric element nodes in x
+    xi_Node = linspace(0, 1, Nu_x + 1);
 
-    %% --------------------------------------------------------------------
-    % 4) Map Gauss points to xi-elements
-    % ---------------------------------------------------------------------
+    %% 4) Map Gauss points to x-elements
     x_gauss_points   = zeros(Nu_x * n_degree_gp, 1);
     w_x_gauss_points = zeros(Nu_x * n_degree_gp, 1);
 
@@ -107,34 +61,13 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         w_x_gauss_points(id) = wgp0;
     end
 
-    %% --------------------------------------------------------------------
-    % 5) Map Gauss points to eta-elements
-    % ---------------------------------------------------------------------
-    y_gauss_points   = zeros(Nu_y * n_degree_gp, 1);
-    w_y_gauss_points = zeros(Nu_y * n_degree_gp, 1);
+    desired_values = x_gauss_points;
 
-    for iy = 1:Nu_y
-        id = (iy-1)*n_degree_gp + (1:n_degree_gp);
+    %% 5) Knot vector in x
+    Xi = [zeros(1,p+1), (1:Nu_x-1)/Nu_x, ones(1,p+1)];
+    n_xi = length(Xi) - p - 1;
 
-        y_min = eta_Node(iy);
-        y_max = eta_Node(iy + 1);
-
-        y_gauss_points(id)   = ((y_max - y_min)/2) * xgp0 + (y_max + y_min)/2;
-        w_y_gauss_points(id) = wgp0;
-    end
-
-    %% --------------------------------------------------------------------
-    % 6) Knot vectors
-    % ---------------------------------------------------------------------
-    Xi  = [zeros(1,p+1), (1:Nu_x-1)/Nu_x, ones(1,p+1)];
-    Eta = Xi;
-
-    n_xi  = length(Xi)  - p - 1;
-    n_eta = n_xi;
-
-    %% --------------------------------------------------------------------
-    % 7) Control-point distribution
-    % ---------------------------------------------------------------------
+    %% 6) Control-point distribution in x
     n = n_xi;
 
     if Nu_x < p + 3
@@ -181,36 +114,25 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
     end
 
     Ctrl_DimLess_X = V_hat / (p * Nu_x);
-    Ctrl_DimLess_Y = Ctrl_DimLess_X;
 
-    %% --------------------------------------------------------------------
-    % 8) Store IGA_Points
-    % ---------------------------------------------------------------------
+    %% 7) Store 1D IGA points
     IGA_Points.Gaussin.XGP = x_gauss_points;
-    IGA_Points.Gaussin.YGP = y_gauss_points;
     IGA_Points.Gaussin.WGPX = w_x_gauss_points;
-    IGA_Points.Gaussin.WGPY = w_y_gauss_points;
     IGA_Points.Gaussin.n_degree_gp = n_degree_gp;
 
     IGA_Points.knot.DimLess_X = Xi;
-    IGA_Points.knot.DimLess_Y = Eta;
 
     IGA_Points.Ctrl.DimLess_X = Ctrl_DimLess_X;
-    IGA_Points.Ctrl.DimLess_Y = Ctrl_DimLess_Y;
     IGA_Points.Ctrl.Number_X  = n_xi;
-    IGA_Points.Ctrl.Number_Y  = n_eta;
 
-    IGA_Points.parametric.xi_parametric_values  = linspace(0,1,n_xi);
-    IGA_Points.parametric.eta_parametric_values = linspace(0,1,n_eta);
+    IGA_Points.parametric.xi_parametric_values = linspace(0,1,n_xi);
 
-    %% --------------------------------------------------------------------
-    % 9) Basis values and derivatives in X
-    % ---------------------------------------------------------------------
+    %% 8) Basis values in X at Gauss points
     N_values = zeros(p + 1, n_xi + 1, length(desired_values));
 
     for k = 1:length(desired_values)
         xi = desired_values(k);
-        N = zeros(p+1, n_xi+1);
+        N = zeros(p+1, n_xi+1);   % keep n_xi+1 internally
 
         for i = 1:n_xi
             if i < n_xi
@@ -252,9 +174,7 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         N_values(:,:,k) = N;
     end
 
-    %% --------------------------------------------------------------------
-    % 10) Extract degree-p basis
-    % ---------------------------------------------------------------------
+    %% 9) Extract degree-p basis
     Nlast_3D = N_values(p+1,:,:);
     Nlast = squeeze(Nlast_3D);
 
@@ -262,13 +182,10 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         Nlast = reshape(Nlast, [], 1);
     end
 
-    Nlast(end,:) = [];
-    N_last = Nlast;
+    N_last = Nlast(1:n_xi, :);   % final size: n_xi x nGP
 
-    %% --------------------------------------------------------------------
-    % 11) First derivative
-    % ---------------------------------------------------------------------
-    d1N_values = zeros(n_xi+1, length(desired_values));
+    %% 10) First derivative
+    d1N_values = zeros(n_xi, length(desired_values));
 
     if p >= 1
         for i = 1:n_xi
@@ -291,13 +208,11 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         end
     end
 
-    %% --------------------------------------------------------------------
-    % 12) Second derivative
-    % ---------------------------------------------------------------------
-    d2N_values = zeros(n_xi+1, length(desired_values));
+    %% 11) Second derivative
+    d2N_values = zeros(n_xi, length(desired_values));
 
     if p >= 2
-        prevd1N = zeros(n_xi+1, length(desired_values));
+        prevd1N = zeros(n_xi+1, length(desired_values)); % internal helper
         p_minus_1 = p - 1;
 
         for i = 1:n_xi
@@ -339,14 +254,12 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         end
     end
 
-    %% --------------------------------------------------------------------
-    % 13) Third derivative
-    % ---------------------------------------------------------------------
-    d3N_values = zeros(n_xi+1, length(desired_values));
+    %% 12) Third derivative
+    d3N_values = zeros(n_xi, length(desired_values));
 
     if p >= 3
         p_minus_2 = p - 2;
-        prevd1N_of_p_minus_2 = zeros(n_xi+1, length(desired_values));
+        prevd1N_of_p_minus_2 = zeros(n_xi+1, length(desired_values)); % internal helper
 
         for i = 1:n_xi
             denom1 = Xi(i + p_minus_2)   - Xi(i);
@@ -369,7 +282,7 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         end
 
         p_minus_1 = p - 1;
-        prevd2N_of_p_minus_1 = zeros(n_xi+1, length(desired_values));
+        prevd2N_of_p_minus_1 = zeros(n_xi+1, length(desired_values)); % internal helper
 
         for i = 1:n_xi
             denom1 = Xi(i + p_minus_1)   - Xi(i);
@@ -412,14 +325,10 @@ function Out = Build_2D_IGA_Model(Nu_x, p)
         end
     end
 
-    %% --------------------------------------------------------------------
-    % 14) Final output
-    % ---------------------------------------------------------------------
+    %% 13) Final output
     Out.IGA_Points  = IGA_Points;
-    Out.IGA_parm.Nu_x    = Nu_x;
-    Out.IGA_parm.Nu_y    = Nu_y;
+    Out.IGA_parm.Nu_x = Nu_x;
     Out.IGA_parm.p    = p;
-    Out.IGA_parm.q    = q;
     Out.N_last      = N_last;
     Out.d1N_values  = d1N_values;
     Out.d2N_values  = d2N_values;
