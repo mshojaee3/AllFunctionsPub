@@ -84,7 +84,7 @@ for ex = 1:Nu_x
                 paramsPiola.F21   = F21;
                 paramsPiola.F22   = F22;
 
-                [P11,P12,P21,P22] = Mat_17A_Compute_2D_FirstPiolaStress_from_DeformationGradient(paramsPiola);
+                [P11,P12,P21,P22] = AllFunctions.Mat_17A_Compute_2D_FirstPiolaStress_from_DeformationGradient(paramsPiola);
                 
                 gp_P11(iy,ix) = P11;
                 gp_P12(iy,ix) = P12;
