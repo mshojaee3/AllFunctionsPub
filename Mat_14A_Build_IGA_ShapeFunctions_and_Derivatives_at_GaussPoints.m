@@ -1,4 +1,4 @@
-function IsoGeo = Mat_14A_Build_IGA_ShapeFunctions_and_Derivatives_at_Gausspoints(params)
+function IsoGeo = Mat_14A_Build_IGA_ShapeFunctions_and_Derivatives_at_GaussPoints(params)
 % Mat_14A_Build_IGA_ShapeFunctions_and_Derivatives
 % Builds 1D IGA shape functions and their derivatives at Gauss points.
 %
