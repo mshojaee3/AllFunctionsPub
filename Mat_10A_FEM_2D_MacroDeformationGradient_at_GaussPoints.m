@@ -113,6 +113,12 @@ for fi = 1:nFrames
     csv_node = fullfile(simDir, frameFiles(fi).name);
     nodal_table = readtable(csv_node);
 
+     %
+    safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
+    csv_name_np = sprintf('%s_NodalPoints_f%04d.csv', safeLoadCase, fi-1);
+    csv_path_np = fullfile(fijDir, csv_name_np);
+    writetable(nodal_table, csv_path_np);
+    %
 
     Labels_np = nodal_table.Node_Label;
     X_np      = nodal_table.X;
