@@ -205,7 +205,10 @@ for fi = 1:nFrames
 
     % Precompute squared distances between GPs
     XY = [x_gp(:), y_gp(:)];
-    D2 = pdist2(XY, XY, 'squaredeuclidean');
+    G23 = XY * XY.';
+    s23 = sum(XY.^2, 2);
+    D2 = s23 + s23.' - 2*G23;
+    D2 = max(D2, 0);
 
     for g = 1:nGP
 
