@@ -1,4 +1,4 @@
-function [Rx,Ry] = computeReactionFromNodalCSV(file, edgeName)
+function [Rx,Ry] = Mat_19A_ComputeReactionFromNodalNode(file, edgeName)
 % computeReactionFromNodalCSV
 % Approximate boundary reaction force from nodal Cauchy stress data.
 %
