@@ -27,6 +27,11 @@ if ~exist(fijDir, 'dir')
     mkdir(fijDir);
 end
 
+odbDir = fullfile(parms.rootDir, 'ODB_Cases');
+if ~exist(odbDir, 'dir')
+    mkdir(odbDir);
+end
+
 if run_ruc
 
 
@@ -70,6 +75,21 @@ status = system(cmd);
 
 if status ~= 0
     error('Abaqus simulation failed. Check .log files in %s', simDir);
+end
+
+% -------------------------------------------------------------------------
+% Save ODB file for this load case into ODB_cases folder
+% -------------------------------------------------------------------------
+safeLoadCase = regexprep(parms.load_case, '[^\w]', '_');
+
+odb_src = fullfile(simDir, sprintf('%s.odb', parms.JOB));
+odb_dst = fullfile(odbDir, sprintf('%s.odb', safeLoadCase));
+
+if isfile(odb_src)
+    copyfile(odb_src, odb_dst);
+    fprintf('   -> ODB file saved to: %s\n', odb_dst);
+else
+    warning('ODB file not found: %s', odb_src);
 end
 
 
