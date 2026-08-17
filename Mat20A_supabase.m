@@ -56,7 +56,7 @@ function varargout = supabase(action, varargin)
 URL = 'https://mreweybhnsyytsfzxxfj.supabase.co';
 KEY = 'sb_publishable_ZtKwPWDEyxQyBy05Kz08oQ_F_agHBZO';
 
-TABLE = 'case_runs2';
+TABLE = 'case_runs';
 % ============================================================
 
 switch lower(char(action))
