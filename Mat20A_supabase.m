@@ -1,4 +1,4 @@
-function varargout = supabase(TABLE ,action, varargin)
+function varargout = supabase(TABLE, action, varargin)
 %SUPABASE  All Supabase coordination for the PANN sweep, in one file.
 %
 % The URL and the key live here and nowhere else. Every machine
@@ -53,10 +53,10 @@ function varargout = supabase(TABLE ,action, varargin)
 % ============================================================
 % CONFIGURATION - the only place these appear
 % ============================================================
-URL = 'https://mreweybhnsyytsfzxxfj.supabase.co';
-KEY = 'sb_publishable_ZtKwPWDEyxQyBy05Kz08oQ_F_agHBZO';
+URL = 'https://hajjtqvezohcjgfraxan.supabase.co';
+KEY = 'sb_publishable_LZQO4xR8prcZIvOF_xUSBQ_yTd1pwhG';
 
-%TABLE = 'case_runs';
+%TABLE = 'case_runs1';
 % ============================================================
 
 switch lower(char(action))
