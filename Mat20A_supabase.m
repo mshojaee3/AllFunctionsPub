@@ -1,4 +1,4 @@
-function varargout = supabase(TABLE, action, varargin)
+function varargout = Mat20A_supabase(TABLE, action, varargin)
 %SUPABASE  All Supabase coordination for the PANN sweep, in one file.
 %
 % The URL and the key live here and nowhere else. Every machine
